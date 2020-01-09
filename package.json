@@ -23,5 +23,10 @@
     "electron-webpack": "^2.7.4",
     "react": "^16.12.0",
     "webpack": "~4.35.3"
+  },
+  "electronWebpack": {
+    "renderer": {
+      "webpackConfig": "css.webpack.addition.js"
+    }
   }
 }

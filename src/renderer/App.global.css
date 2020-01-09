@@ -1,0 +1,46 @@
+@import '~bootstrap/dist/css/bootstrap.min.css';
+
+.container {
+  /* position: absolute; */
+  /* top: 30%; */
+  /* top: 4rem; */
+  /* left: 10px; */
+  /* text-align: center; */
+}
+
+.container h2 {
+  /* font-size: 5rem; */
+}
+
+.container a {
+  /* font-size: 1.4rem; */
+}
+
+.input-group {
+  margin-bottom: -1px;
+}
+
+.input-group input:last-child,
+.input-group .btn:last-child {
+  border-radius: 0;
+}
+
+.input-group:first-child input:last-child {
+  border-top-right-radius: .3rem;
+}
+
+.input-group:last-child input:last-child {
+  border-bottom-right-radius: .3rem;
+}
+
+.input-group > .input-group-prepend:nth-child(1) > .input-group-text {
+  width: 105px;
+}
+
+.two-btn > .col-md-6:nth-child(1) {
+  padding-right: 7.5px;
+}
+
+.two-btn > .col-md-6:nth-child(2) {
+  padding-left: 7.5px;
+}
