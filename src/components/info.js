@@ -8,13 +8,25 @@ import Password from './password';
 export default class Info extends Component {
   render() {
     const {
-      type
+      type,
+      state
     } = this.props;
+
+    if (state === undefined) {
+      state["seat_num"] = "";
+      state["start_time"] = "";
+      state["end_time"] = "";
+    }
+
+    const input = {
+      "input": <StudentID type={type} />,
+      "modify": <SeatID value={state.seat_num} />
+    }
     return (
       <Row noGutters={true}>
-        { type === "input" ? <StudentID type={type} /> : <SeatID /> }
-        <SelectTime type="start" />
-        <SelectTime type="end" />
+        { input[type] }
+        <SelectTime type="start" value={state.start_time} />
+        <SelectTime type="end" value={state.end_time} />
         <Password type={type} />
       </Row>
     );

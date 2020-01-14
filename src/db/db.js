@@ -77,6 +77,38 @@ export function reserve({ st_id, seat_num, start, end, password }, handler) {
   db.close();
 }
 
+export function getReservation({ st_id }, handler) {
+  const sqlite3 = sqlite.verbose();
+  const db = new sqlite3.Database('db.db');
+  db.get(`
+    SELECT
+    seat_num, start_time, end_time
+    FROM reservation
+    WHERE st_id=(?) AND created=date('now')`,
+    st_id.value,
+    (err, row) => handler(row)
+  );
+  db.close();
+}
+
+export function getReservationList({ seat_num }, handler) {
+  const sqlite3 = sqlite.verbose();
+  const db = new sqlite3.Database('db.db');
+  db.all(`
+    SELECT
+    st_id, start_time, end_time
+    FROM reservation
+    WHERE seat_num=(?)`,
+    [seat_num],
+    (err, rows) => {
+      console.log(rows);
+      rows = rows.map(row => row.st_id);
+      rows = rows.join('|');
+      handler({ pattern: rows });
+    }
+  );
+  db.close();
+}
 // To - Do
 // -. reservation function test
 // 2. decorator
@@ -86,5 +118,5 @@ export function reserve({ st_id, seat_num, start, end, password }, handler) {
 // 5-1. 분에서 다 지우면 시로 넘어가게
 // -. 메시지? 피드백? 띄우기
 // -. focus 시 select
-// 8. 아이콘 띄우기: react-icons
-// 9. 비밀번호 표시
+// -. 아이콘 띄우기: react-icons
+// -. 비밀번호 표시

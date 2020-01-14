@@ -1,12 +1,15 @@
 import React, { Component } from 'react';
 import { InputGroup, InputGroupAddon, Input, Button } from 'reactstrap';
-import { getPattern } from '../db/db'
+import { GoSearch } from 'react-icons/go';
+import { getPattern } from '../db/db';
 
 class Search extends Component {
   render() {
     return (
       <InputGroupAddon addonType="append">
-        <Button>검색</Button>
+        <Button outline={true}>
+          <GoSearch/>
+        </Button>
       </InputGroupAddon>
     );
   }
