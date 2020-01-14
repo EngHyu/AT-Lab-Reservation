@@ -12,29 +12,52 @@ const property = {
   }
 }
 
+const timeType = {
+  hour: {
+    name: "hour",
+    min: "09",
+    max: "23"
+  },
+  minute: {
+    name: "minute",
+    min: "00",
+    max: "59"
+  }
+}
+
 class Time extends Input {
-  onChange = (e) => {
+  onFocus = (event) => {
+    event.target.select();
+  }
+
+  onChange = (event) => {
     const {
-      max,
-      type,
+      timeType,
       handler
     } = this.props;
-    
-    if (parseInt(e.target.value) > max) return;
-    handler(type, e.target.value);
+    const {
+      max,
+      name
+    } = timeType;
+    if (parseInt(event.target.value) > max) return;
+    handler(name, event.target.value);
   }
 
   render() {
     const {
-      max,
       prefix,
-      type,
+      timeType,
       value
     } = this.props;
-    const name = `${prefix}_${type}`;
+    const {
+      min,
+      max
+    } = timeType;
+    const name = `${prefix}_${timeType.name}`;
     return (
-      <Input type="number" min="00" max={max}
+      <Input type="number" min={min} max={max}
         aria-label={name}
+        onFocus={this.onFocus}
         onChange={this.onChange}
         className="time"
         value={value}
@@ -46,8 +69,8 @@ class Time extends Input {
 export default class SelectTime extends Component {
   state = {
     ...property['start'],
-    hour: "00",
-    minute: "00"
+    hour: timeType.hour.min,
+    minute: timeType.minute.min
   }
 
   componentDidMount() {
@@ -86,9 +109,9 @@ export default class SelectTime extends Component {
         <InputGroupAddon addonType="prepend">
           {name}
         </InputGroupAddon>
-        <Time max={23} prefix={prefix} type="hour" handler={this.handler} value={hour} />
+        <Time prefix={prefix} timeType={timeType.hour} handler={this.handler} value={hour} />
         <InputGroupAddon addonType="append" className="input-group-prepend">:</InputGroupAddon>
-        <Time max={59} prefix={prefix} type="minute" handler={this.handler} value={minute} />
+        <Time prefix={prefix} timeType={timeType.minute} handler={this.handler} value={minute} />
         <Input type="hidden" name={prefix} value={`${hour}:${minute}`} readOnly />
         <InputGroupAddon addonType="append">
           <ButtonGroup className="btn-group-toggle">

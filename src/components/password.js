@@ -12,6 +12,9 @@ export default class Password extends Component {
           비밀번호
         </InputGroupAddon>
         <Input type="password" name="password" required />
+        <InputGroupAddon addonType="append">
+          <i className="fa fa-eye-slash" aria-hidden="true"></i>
+        </InputGroupAddon>
       </InputGroup>
     );
   }

@@ -26,10 +26,9 @@ export function init() {
   `);
 
   // reservation table
-  /* primary면 안 되는데.. 날짜 + 학번이 primary */
   db.run(`
     CREATE TABLE reservation(
-      st_id INTEGER,
+      st_id INTEGER NOT NULL,
       seat_num INTEGER NOT NULL,
       start_time TIME,
       end_time TIME,
@@ -63,14 +62,29 @@ export function getPattern(handler) {
   db.close();
 }
 
-export function reserve({ st_id, seat_num, start, end, password }) {
+export function reserve({ st_id, seat_num, start, end, password }, handler) {
   const sqlite3 = sqlite.verbose();
   const db = new sqlite3.Database('db.db');
   db.run(`
     INSERT INTO reservation(
       st_id, seat_num, start_time, end_time, password
     ) VALUES(?, ?, ?, ?, ?);`,
-    st_id, seat_num, start, end, password
+    [st_id, seat_num, start, end, password],
+    (err) => handler({
+      status: (err === null) ? "success" : "failed"
+    })
   );
   db.close();
 }
+
+// To - Do
+// -. reservation function test
+// 2. decorator
+// -. required 등 반응, 그러나 submit redirection 안 되게
+// -. 시간 min, max 체크가 안된다
+// 5. 탭 자동 넘어가게
+// 5-1. 분에서 다 지우면 시로 넘어가게
+// -. 메시지? 피드백? 띄우기
+// -. focus 시 select
+// 8. 아이콘 띄우기: react-icons
+// 9. 비밀번호 표시

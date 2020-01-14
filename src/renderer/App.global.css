@@ -27,3 +27,19 @@
 .time {
   text-align: center;
 }
+
+.space {
+  justify-content: space-between;
+}
+
+.idle {
+  display: none;
+}
+
+.valid {
+  color: #28a745;
+}
+
+.invalid {
+  color: #dc3545;
+}

@@ -3,7 +3,7 @@ import { FormGroup, Col, Row, Button, Input, ButtonGroup } from 'reactstrap';
 import styles from './select_seat.module.css';
 
 class Seat extends Component {
-  onClick = (e) => {
+  onClick = (event) => {
     const {
       id,
       handler
