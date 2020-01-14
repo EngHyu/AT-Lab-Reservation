@@ -11,7 +11,7 @@ export default class Password extends Component {
         <InputGroupAddon addonType="prepend">
           비밀번호
         </InputGroupAddon>
-        <Input type="password" required />
+        <Input type="password" name="password" required />
       </InputGroup>
     );
   }

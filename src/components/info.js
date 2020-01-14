@@ -13,8 +13,8 @@ export default class Info extends Component {
     return (
       <Row noGutters={true}>
         { type === "input" ? <StudentID type={type} /> : <SeatID /> }
-        <SelectTime name="시작 시간" />
-        <SelectTime name="종료 시간" />
+        <SelectTime type="start" />
+        <SelectTime type="end" />
         <Password type={type} />
       </Row>
     );

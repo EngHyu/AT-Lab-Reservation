@@ -11,7 +11,7 @@ export default class SeatID extends Component {
         <InputGroupAddon addonType="prepend">
           좌석 번호
         </InputGroupAddon>
-        <Input required />
+        <Input name="seat_id" required />
       </InputGroup>
     );
   }

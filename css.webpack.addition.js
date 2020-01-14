@@ -20,7 +20,5 @@ module.exports = function(config) {
   }
   
   config.module.rules.push(localRule)
-  console.log(globalRule, localRule);
-
   return config
 }

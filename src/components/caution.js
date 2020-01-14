@@ -3,6 +3,9 @@ import { Col, Button } from 'reactstrap';
 
 export default class Caution extends Component {
   render() {
+    const {
+      onClick
+    } = this.props;
     return (
       <Col md={{ size: 5 }}>
         <h4>주의사항</h4>
@@ -12,7 +15,9 @@ export default class Caution extends Component {
           <li>X513 개방 시간은 09:00부터 23:00까지입니다.</li>
           <li>시험 기간에는 24시간 개방합니다.(별도 공지 예정)</li>
         </ol>
-        <Button color="primary" block={true}>주의사항에 동의하며 예약을 진행합니다.</Button>
+        <Button color="primary" block={true} onClick={onClick} >
+          주의사항에 동의하며 예약을 진행합니다.
+        </Button>
       </Col>
     );
   }

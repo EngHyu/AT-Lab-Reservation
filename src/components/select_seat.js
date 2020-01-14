@@ -3,31 +3,55 @@ import { FormGroup, Col, Row, Button, Input, ButtonGroup } from 'reactstrap';
 import styles from './select_seat.module.css';
 
 class Seat extends Component {
+  onClick = (e) => {
+    const {
+      id,
+      handler
+    } = this.props;
+    handler("seat_num", id);
+  }
+
   render() {
     const {
-      id
+      id,
+      seat_num
     } = this.props;
     return (
-      <Button color="primary" block={true} className="seat-btn">
-        <Input type="radio" name="" id={"jb-radio" + id} />{id}
+      <Button color="primary" block={true} className={styles.seat} tag="label" active={id === seat_num} >
+        <Input type="radio" name="seat_num" value={id} onClick={this.onClick} required/>{id}
       </Button>
     );
   }
 }
 
 class X513 extends Component {
+  state = {
+    seat_num: 0
+  }
+
+  handler = (key, value) => {
+    const state = {};
+    state[key] = value;
+    this.setState({
+      ...this.state,
+      ...state
+    })
+  }
+
   render() {
-    console.log(styles);
+    const {
+      seat_num
+    } = this.state;
     return (
       <div>
         <Row className="pb-3" noGutters={true}>
-          <Button outline={true} block={true} className={styles.seat} disabled>Screen Side</Button>
+          <Button outline={true} block={true} className={styles.seat} tag="label" disabled>Screen Side</Button>
         </Row>
-        <Row className={styles.row} data-toggle="buttons">
+        <Row className={styles.row}>
           {[...Array(8).keys()].map(num =>
             <Col className={`btn-group-toggle ${styles.col}`} key={num}>
               {[...Array(6).keys()].map(ele =>
-                <Seat id={num * 6 + ele + 1} key={num * 6 + ele + 1} />
+                <Seat id={num * 6 + ele + 1} key={num * 6 + ele + 1} handler={this.handler} seat_num={seat_num} />
               )}
             </Col>
           )}

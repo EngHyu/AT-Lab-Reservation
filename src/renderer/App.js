@@ -9,8 +9,8 @@ export default class App extends Component {
     return (
       <div>
         <ReserveSeat/>
-        <ModifyReserve/>
-        <EndUse/>
+        {<ModifyReserve/>}
+        {<EndUse/>}
       </div>
     );
   }
