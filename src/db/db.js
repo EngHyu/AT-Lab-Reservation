@@ -121,18 +121,16 @@ export function getReservation({ st_id }, handler) {
   db.close();
 }
 
-export function getReservationList({ seat_num }, handler) {
+export function getReservationList(seat_num, handler) {
   const sqlite3 = sqlite.verbose();
   const db = new sqlite3.Database('db.db');
   db.all(`
     SELECT st_id, start_time, end_time
     FROM   reservation
-    WHERE  seat_num=(?)`,
+    WHERE  seat_num=(?) AND created=date('now', 'localtime')`,
     [seat_num],
     (err, rows) => {
-      rows = rows.map(row => row.st_id);
-      rows = rows.join('|');
-      handler({ pattern: rows });
+      handler({ st_list: rows });
     }
   );
   db.close();

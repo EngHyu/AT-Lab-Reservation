@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Col, Row, Form, FormGroup, Input } from 'reactstrap';
 import { SearchID, Info, CancelOkBtn, ReserveTable, Feedback } from '../components';
-import { validate, modify } from '../db/db';
+import { validate, modify, getReservationList } from '../db/db';
 
 export default class ModifyReserve extends Component {
   state = {
@@ -11,6 +11,14 @@ export default class ModifyReserve extends Component {
     start_time: "",
     end_time: "",
     action: "",
+    st_list: [],
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    if (JSON.stringify(this.state) === JSON.stringify(prevState))
+      return false;
+
+    getReservationList(this.state.seat_num, this.handler);
   }
 
   handler = (state) => {
@@ -23,16 +31,14 @@ export default class ModifyReserve extends Component {
   handleSubmit = (event) => {
     event.preventDefault();
     const formData = validate(event.target);
-    console.log(formData);
     modify(formData, this.handler);
-    console.log(this.state.status);
-    
   }
 
   render() {
     const {
       status,
       st_id,
+      st_list,
     } = this.state;
 
     return (
@@ -53,7 +59,7 @@ export default class ModifyReserve extends Component {
             </Form>
           </Col>
           <Col md={{ size: 5 }}>
-            <ReserveTable />
+            <ReserveTable st_list={st_list} />
           </Col>
         </Row>
       </div>

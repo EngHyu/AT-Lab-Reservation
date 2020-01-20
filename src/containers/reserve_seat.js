@@ -18,7 +18,6 @@ export default class ReserveSeat extends Component {
   handleSubmit = (event) => {
     event.preventDefault();
     const formData = validate(event.target);
-    console.log(formData);
     reserve(formData, this.handler);
   }
 

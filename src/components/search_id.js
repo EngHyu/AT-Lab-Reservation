@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Form, FormGroup } from 'reactstrap';
 import { StudentID } from '../components';
-import { getReservation } from '../db/db';
+import { getReservation, getReservationList } from '../db/db';
 
 export default class SearchID extends Component {
   handleSubmit = (event) => {
@@ -9,7 +9,7 @@ export default class SearchID extends Component {
       handler
     } = this.props;
     event.preventDefault();
-    getReservation(search_id, handler);
+    getReservation(event.target, handler);
   }
 
   render() {

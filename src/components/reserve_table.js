@@ -21,6 +21,10 @@ class TR extends Component {
 
 export default class ReserveTable extends Component {
   render() {
+    const {
+      st_list,
+    } = this.props;
+
     return (
       <Table striped>
         <thead>
@@ -31,7 +35,11 @@ export default class ReserveTable extends Component {
           </tr>
         </thead>
         <tbody>
-          <TR id={1} st_id={20161180} start_time="09:00" end_time="12:00"/>
+          {
+            st_list.map(({st_id, start_time, end_time}, idx) => {
+              return <TR key={idx} id={idx+1} st_id={st_id} start_time={start_time} end_time={end_time}/>
+            })
+          }
         </tbody>
       </Table>
     );
