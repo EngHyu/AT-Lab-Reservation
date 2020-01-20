@@ -1,65 +1,11 @@
 import React, { Component } from 'react';
 import { Form, FormGroup, Col, Row } from 'reactstrap';
-import SelectSeat from '../components/select_seat';
-import Info from '../components/info';
-import Caution from '../components/caution';
-import { reserve } from '../db/db';
-import crypto from 'crypto';
-
-class Feedback extends Component {
-  type = {
-    idle: {
-      className: "idle",
-      text: ""
-    },
-    success: {
-      className: "valid",
-      text: "* 예약을 완료했습니다."
-    },
-    failed: {
-      className: "invalid",
-      text: "* 이미 예약하셨습니다."
-    }
-  }
-
-  render() {
-    const {
-      status
-    } = this.props;
-    const {
-      className,
-      text
-    } = this.type[status];
-    return (
-      <span className={className}>
-        {text}
-      </span>
-    );
-  }
-}
+import { SelectSeat, Feedback, Info, Caution } from '../components';
+import { reserve, validate } from '../db/db';
 
 export default class ReserveSeat extends Component {
   state = {
     status: "idle"
-  }
-
-  encrypt({ st_id, password }) {
-    const hash = crypto.createHmac('sha256', st_id)
-      .update(password)
-      .digest('hex');
-    return hash;
-  }
-
-  validate() {
-    const formData = Object.values(reserve_seat)
-      .reduce((arr, ele) => {
-        try {
-          arr[ele.name] = reserve_seat[ele.name].value;
-        } catch {}
-        return arr
-      }, {});
-    formData.password = this.encrypt(formData);
-    reserve(formData, this.handler);
   }
 
   handler = (state) => {
@@ -71,11 +17,9 @@ export default class ReserveSeat extends Component {
 
   handleSubmit = (event) => {
     event.preventDefault();
-    this.validate();
-    setTimeout(
-      ()=>this.handler({ status: "idle" }),
-      5000
-    );
+    const formData = validate(event.target);
+    console.log(formData);
+    reserve(formData, this.handler);
   }
 
   render() {

@@ -4,25 +4,25 @@ import { InputGroup, InputGroupAddon, Input, ButtonGroup, Button } from 'reactst
 const property = {
   start: {
     name: "시작 시간",
-    prefix: "start"
+    prefix: "start",
   },
   end: {
     name: "종료 시간",
-    prefix: "end"
-  }
+    prefix: "end",
+  },
 }
 
 const timeType = {
   hour: {
     name: "hour",
     min: "09",
-    max: "23"
+    max: "23",
   },
   minute: {
     name: "minute",
     min: "00",
-    max: "59"
-  }
+    max: "59",
+  },
 }
 
 class Time extends Input {
@@ -33,26 +33,32 @@ class Time extends Input {
   onChange = (event) => {
     const {
       timeType,
-      handler
+      handler,
     } = this.props;
+
     const {
       max,
-      name
+      name,
     } = timeType;
+
     if (parseInt(event.target.value) > max) return;
-    handler(name, event.target.value);
+    handler({
+      [name]: event.target.value,
+    });
   }
 
   render() {
     const {
       prefix,
       timeType,
-      value
+      value,
     } = this.props;
+
     const {
       min,
-      max
+      max,
     } = timeType;
+    
     const name = `${prefix}_${timeType.name}`;
     return (
       <Input type="number" min={min} max={max}
@@ -70,7 +76,7 @@ export default class SelectTime extends Component {
   state = {
     ...property['start'],
     hour: timeType.hour.min,
-    minute: timeType.minute.min
+    minute: timeType.minute.min,
   }
 
   componentDidMount() {
@@ -84,9 +90,36 @@ export default class SelectTime extends Component {
     });
   }
 
-  handler = (key, value) => {
-    const state = {};
-    state[key] = parseInt(value).toLocaleString('ko-KR', { minimumIntegerDigits: 2 });
+  componentDidUpdate(prevProps) {
+    if (this.props.value !== prevProps.value) {
+      const {
+        hour,
+        minute,
+      } = this.props.value;
+
+      this.handler({
+        hour,
+        minute,
+      });
+    }
+  }
+
+  toDigits(value) {
+    return parseInt(value)
+    .toLocaleString(
+      'ko-KR',
+      {
+        minimumIntegerDigits: 2
+      }
+    );
+  }
+
+  handler = (state) => {
+    Object.entries(state).map(ele => {
+      ele[1] = this.toDigits(ele[1]);
+      return ele;
+    });
+
     this.setState({
       ...this.state,
       ...state
@@ -94,7 +127,13 @@ export default class SelectTime extends Component {
   }
 
   handleHour = (num) => {
-    this.handler("hour", (12 + parseInt(this.state.hour)) % num);
+    const {
+      hour
+    } = this.state;
+
+    this.handler({
+      hour: (12 + parseInt(hour)) % num
+    });
   }
 
   render() {

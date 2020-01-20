@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Form, FormGroup } from 'reactstrap';
-import StudentID from './student_id';
+import { StudentID } from '../components';
 import { getReservation } from '../db/db';
 
 export default class SearchID extends Component {

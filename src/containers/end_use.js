@@ -1,10 +1,6 @@
 import React, { Component } from 'react';
 import { Col, Form, FormGroup, Button } from 'reactstrap';
-import SelectSeat from '../components/select_seat';
-import StudentID from '../components/student_id';
-import SeatID from '../components/seat_id';
-import Password from '../components/password';
-import CancelOkBtn from '../components/cancel_ok_btn';
+import { SelectSeat, StudentID, SeatID, Password, CancelOkBtn } from '../components';
 
 export default class EndUse extends Component {
   render() {

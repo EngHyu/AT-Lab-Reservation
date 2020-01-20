@@ -1,4 +1,5 @@
 import sqlite from 'sqlite3';
+import crypto from 'crypto';
 
 export function init() {
   const sqlite3 = sqlite.verbose();
@@ -71,7 +72,7 @@ export function reserve({ st_id, seat_num, start, end, password }, handler) {
     ) VALUES(?, ?, ?, ?, ?);`,
     [st_id, seat_num, start, end, password],
     (err) => handler({
-      status: (err === null) ? "success" : "failed"
+      status: (err === null) ? "reserve_success" : "reserve_failed"
     })
   );
   db.close();
@@ -81,12 +82,41 @@ export function getReservation({ st_id }, handler) {
   const sqlite3 = sqlite.verbose();
   const db = new sqlite3.Database('db.db');
   db.get(`
-    SELECT
-    seat_num, start_time, end_time
-    FROM reservation
-    WHERE st_id=(?) AND created=date('now')`,
+    SELECT st_id, seat_num, start_time, end_time
+    FROM   reservation
+    WHERE  st_id=(?) AND created=date('now')`,
     st_id.value,
-    (err, row) => handler(row)
+    (err, row) => {
+      if (row === undefined) {
+        handler({
+          status: "select_failed",
+          seat_num: st_id.value,
+          seat_num: "",
+          start_time: {
+            hour: "09",
+            minute: "00",
+          },
+          end_time: {
+            hour: "09",
+            minute: "00",
+          },
+        })
+        return;
+      }
+
+      const start_time = row.start_time.split(":");
+      const end_time = row.end_time.split(":");
+      row.start_time = {
+        hour: start_time[0],
+        minute: start_time[1]
+      }
+      row.end_time = {
+        hour: end_time[0],
+        minute: end_time[1]
+      }
+      row.status = "select_success";
+      handler(row);
+    }
   );
   db.close();
 }
@@ -95,13 +125,11 @@ export function getReservationList({ seat_num }, handler) {
   const sqlite3 = sqlite.verbose();
   const db = new sqlite3.Database('db.db');
   db.all(`
-    SELECT
-    st_id, start_time, end_time
-    FROM reservation
-    WHERE seat_num=(?)`,
+    SELECT st_id, start_time, end_time
+    FROM   reservation
+    WHERE  seat_num=(?)`,
     [seat_num],
     (err, rows) => {
-      console.log(rows);
       rows = rows.map(row => row.st_id);
       rows = rows.join('|');
       handler({ pattern: rows });
@@ -109,14 +137,78 @@ export function getReservationList({ seat_num }, handler) {
   );
   db.close();
 }
-// To - Do
-// -. reservation function test
-// 2. decorator
-// -. required 등 반응, 그러나 submit redirection 안 되게
-// -. 시간 min, max 체크가 안된다
-// 5. 탭 자동 넘어가게
-// 5-1. 분에서 다 지우면 시로 넘어가게
-// -. 메시지? 피드백? 띄우기
-// -. focus 시 select
-// -. 아이콘 띄우기: react-icons
-// -. 비밀번호 표시
+
+export function validate(form) {
+  const formData = Object.values(form)
+    .reduce((arr, ele) => {
+      try {
+        arr[ele.name] = form[ele.name].value;
+      } catch {}
+      return arr
+    }, {});
+
+  formData.password = encrypt(formData);
+  return formData;
+}
+
+export function encrypt({ st_id, password }) {
+  const hash = crypto.createHmac('sha256', st_id)
+    .update(password)
+    .digest('hex');
+  return hash;
+}
+
+function updateDB({ seat_num, start, end, st_id, password }, handler) {
+  const sqlite3 = sqlite.verbose();
+  const db = new sqlite3.Database('db.db');
+  db.run(`
+      UPDATE reservation
+      SET seat_num=(?), start_time=(?), end_time=(?)
+      WHERE st_id=(?) AND password=(?) AND created=date('now', 'localtime');
+    `,
+    [seat_num, start, end, st_id, password],
+    function (err) {
+      if (err)
+        console.error(err.message);
+
+      handler({
+        status: (this.changes === 1) ? "modify_success" : "verify_failed"
+      })
+    }
+  );
+  db.close();
+}
+
+function deleteDB({ st_id, password }, handler) {
+  const sqlite3 = sqlite.verbose();
+  const db = new sqlite3.Database('db.db');
+  db.run(`
+      DELETE FROM reservation
+      WHERE st_id=(?) AND password=(?) AND created=date('now', 'localtime');
+    `,
+    [st_id, password],
+    function (err) {
+      if (err)
+        console.error(err.message);
+
+      handler({
+        status: (this.changes === 1) ? "delete_success" : "verify_failed"
+      })
+    }
+  );
+  db.close();
+}
+
+export function modify(formData, handler) {
+  const {
+    action
+  } = formData;
+
+  if (action === "modify") {
+    updateDB(formData, handler);
+  } else if (action === "cancel") {
+    deleteDB(formData, handler);
+  } else {
+    console.error("something wrong!");
+  }
+}
