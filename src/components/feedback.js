@@ -1,69 +1,54 @@
-import React, { Component } from 'react';
+import React, { Component } from 'react'
+import PropTypes from 'prop-types'
+import { Row } from 'reactstrap'
+import { feedback } from '../strings'
 
 export default class Feedback extends Component {
-  type = {
-    idle: {
-      className: "idle",
-      text: "",
-    },
-    reserve_success: {
-      className: "valid",
-      text: "* 예약을 완료했습니다.",
-    },
-    reserve_failed: {
-      className: "invalid",
-      text: "* 이미 예약하셨습니다.",
-    },
-    select_success: {
-      className: "valid",
-      text: "* 예약 정보를 불러왔습니다.",
-    },
-    select_failed: {
-      className: "invalid",
-      text: "* 예약 정보가 없습니다.",
-    },
-    modify_success: {
-      className: "valid",
-      text: "* 예약을 수정하였습니다.",
-    },
-    delete_success: {
-      className: "valid",
-      text: "* 예약 정보를 삭제했습니다.",
-    },
-    verify_failed: {
-      className: "invalid",
-      text: "* 비밀번호가 다릅니다.",
-    },
+  static propTypes = {
+    status: PropTypes.string.isRequired,
+    title: PropTypes.string.isRequired,
   }
 
-  state = this.type["idle"];
+  static defaultProps = {
+    status: "idle",
+  }
 
-  componentDidUpdate(prevProps, prevState) {
+  state = feedback.idle
+
+  componentDidUpdate(prevProps) {
     const {
       status,
-    } = this.props;
-
-    if (this.props === prevProps)
-      return;
+    } = this.props
     
-    const state = this.type[status];
-    this.setState(state);
+    if (this.props === prevProps)
+      return
+    
+    const state = feedback[status]
+    console.log(feedback);
+    this.setState(state)
     setTimeout(
-      ()=>this.setState(this.type.idle),
+      ()=>{
+        this.setState(feedback.idle)
+      },
       3000
-    );
+    )
   }
 
   render() {
     const {
+      title,
+    } = this.props
+
+    const {
       className,
       text,
-    } = this.state;
+    } = this.state
 
     return (
-      <span className={className}>
-        {text}
-      </span>
-    );
+      <Row noGutters={true} className="space">
+        <h4>{title}</h4>
+        <span className={className}>{text}</span>
+      </Row>
+    )
   }
 }

@@ -1,48 +1,53 @@
-import React, { Component } from 'react';
-import { Row } from 'reactstrap';
-import { StudentID, SeatID, SelectTime, Password } from '../components';
+import React, { Component } from 'react'
+import PropTypes from 'prop-types'
+import { Row, FormGroup } from 'reactstrap'
+import { StudentID, SeatID, SelectTime, Password } from '../components'
 
 export default class Info extends Component {
   state = {
-    seat_num: "",
-    start_time: "",
-    end_time: "",
+    startTime: '',
+    endTime: '',
+  }
+
+  static propTypes = {
+    type: PropTypes.string.isRequired,
+    floor: PropTypes.number.isRequired,
+    seatNum: PropTypes.number,
   }
 
   componentDidUpdate(prevProps, prevState) {
-    const { state } = this.props;
-    if (state === undefined) return;
+    const { state } = this.props
+    if (state === undefined) return
     
-    const { st_id } = state;
-    const prev_st_id = prevProps.state.st_id;
+    const { studentID } = state
+    const prevStudentID = prevProps.state.studentID
     
-    if (st_id === prev_st_id) return;
-    this.setState(state);
+    if (studentID === prevStudentID) return
+    this.setState(state)
   }
 
   render() {
     const {
-      type
-    } = this.props;
+      type,
+      floor,
+      seatNum,
+    } = this.props
 
     const {
-      seat_num,
-      start_time,
-      end_time
-    } = this.state;
-
-    const input = {
-      "input": <StudentID type={type} />,
-      "modify": <SeatID value={seat_num} />,
-    }
+      startTime,
+      endTime,
+    } = this.state
 
     return (
       <Row noGutters={true}>
-        { input[type] }
-        <SelectTime type="start" value={start_time} />
-        <SelectTime type="end" value={end_time} />
-        <Password type={type} />
+        <SeatID type={type} value={seatNum} />
+        {
+          floor === 5 &&
+          <SelectTime type='start' value={startTime} /> &&
+          <SelectTime type='end' value={endTime} />
+        }
+        <Password />
       </Row>
-    );
+    )
   }
 }

@@ -1,6 +1,6 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
-import App from './App';
+import React from 'react'
+import ReactDOM from 'react-dom'
+import App from './App'
 
-const rootElement = document.getElementById('app');    
-ReactDOM.render(<App />, rootElement);
+const rootElement = document.getElementById('app')
+ReactDOM.render(<App floor={4}/>, rootElement)

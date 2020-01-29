@@ -1,17 +1,42 @@
-import React, { Component } from 'react';
-import ReserveSeat from '../containers/reserve_seat';
-import ModifyReserve from '../containers/modify_reserve';
-import EndUse from '../containers/end_use';
-import './App.global.css';
+import React, { Component } from 'react'
+import PropTypes from 'prop-types'
+import { ReserveSeat, ModifyReserve, EndUse, Reserve, Modify, End } from '../containers'
+import { ko, en } from '../strings'
+import './App.global.css'
 
 export default class App extends Component {
-  render() {
+  static propTypes = {
+    floor: PropTypes.number.isRequired,
+  }
+
+  state = {
+    lang: ko,
+  }
+
+  render () {
+    const {
+      floor,
+    } = this.props
+
+    const {
+      lang,
+    } = this.state
+
     return (
       <div>
-        {<ReserveSeat/>}
-        {<ModifyReserve/>}
-        {<EndUse/>}
+        {<Reserve floor={floor} lang={lang} />}
+        {<Modify floor={floor} lang={lang} />}
+        {<End floor={floor} lang={lang} />}
       </div>
-    );
+      /*
+        {<Reserve floor={floor} lang={ko.default} />}
+        {<Modify floor={floor} lang={ko.default} />}
+        {<End floor={floor} lang={ko.default} />}
+
+        {<ReserveSeat floor={floor} />}
+        {<ModifyReserve floor={floor} />}
+        {<EndUse floor={floor} />}
+      */
+    )
   }
 }

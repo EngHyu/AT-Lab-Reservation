@@ -1,212 +1,262 @@
-import sqlite from 'sqlite3';
-import crypto from 'crypto';
+import sqlite from 'sqlite3'
+import crypto from 'crypto'
 
-export function init() {
-  const sqlite3 = sqlite.verbose();
-  const db = new sqlite3.Database('db.db');
+export function initDB() {
+  const sqlite3 = sqlite.verbose()
+  const db = new sqlite3.Database('db.db')
 
-  // user table
-  db.run(`
-    CREATE TABLE user (
-      st_id INTEGER PRIMARY KEY,
-      name TEXT NOT NULL,
-      count DEFAULT 0,
-      created TEXT DEFAULT (datetime('now')),
-      modified TEXT DEFAULT (datetime('now'))
-    );
-  `);
+  db.serialize(() => {
+    // create table user
+    db.run(`
+      CREATE TABLE user (
+        studentID INTEGER PRIMARY KEY,
+        name TEXT NOT NULL,
+        available BOOLEAN DEFAULT 1
+      )
+    `)
 
-  // trigger tracks user is modified
-  db.run(`
-    CREATE TRIGGER track_user
-      AFTER UPDATE ON
-      user
-    BEGIN
-      UPDATE user SET modified=datetime('now') where st_id=OLD.st_id;
-    END;
-  `);
+    // insert dummy data into user
+    for (let i=0; i<=20000; i++) {
+      db.run(`
+        INSERT INTO user(
+          studentID, name
+        ) VALUES(?, ?)`,
+        [20161000+i, `user_${i}`]
+      )
+    }
 
-  // reservation table
-  db.run(`
-    CREATE TABLE reservation(
-      st_id INTEGER NOT NULL,
-      seat_num INTEGER NOT NULL,
-      start_time TIME,
-      end_time TIME,
-      password BLOB NOT NULL,
-      created TEXT DEFAULT(date('now', 'localtime')),
-      modified TEXT DEFAULT(datetime('now', 'localtime')),
-      PRIMARY KEY(st_id, created)
-    );
-  `);
+    // create table seat
+    db.run(`
+      CREATE TABLE seat (
+        roomNum INTEGER NOT NULL,
+        seatNum INTEGER NOT NULL,
+        available BOOLEAN DEFAULT 1,
+        PRIMARY KEY(roomNum, seatNum)
+      )
+    `)
 
-  // trigger tracks reservation is modified
-  db.run(`
-    CREATE TRIGGER track_reservation
-      AFTER UPDATE ON
-      reservation
-    BEGIN
-      UPDATE reservation SET modified=datetime('now') where st_id=OLD.st_id;
-    END;
-  `);
-  db.close();
+    // insert dummy data into seat
+    for (let i=1; i<49; i++) {
+      db.run(`
+        INSERT INTO seat(
+          roomNum, seatNum
+        ) VALUES(?, ?)`,
+        [513, i]
+      )
+    }
+
+    // create table reservation
+    db.run(`
+      CREATE TABLE reservation(
+        studentID INTEGER PRIMARY KEY,
+        roomNum INTEGER NOT NULL,
+        seatNum INTEGER NOT NULL,
+        startTime TIME,
+        endTime TIME,
+        password BLOB NOT NULL,
+        CONSTRAINT user_fk FOREIGN KEY(studentID) REFERENCES user(studentID),
+        CONSTRAINT seat_fk FOREIGN KEY(roomNum, seatNum) REFERENCES seat(roomNum, seatNum),
+        UNIQUE(roomNum, seatNum)
+      )
+    `)
+
+    // create trigger controls available
+    db.run(`
+      CREATE TRIGGER trackInsertReservation
+        AFTER INSERT ON
+        reservation
+      BEGIN
+        UPDATE user SET available=0 where studentID=NEW.studentID;
+        UPDATE seat SET available=0 where roomNum=NEW.roomNum AND seatNum=NEW.seatNum;
+      END;
+    `)
+    db.run(`
+      CREATE TRIGGER trackDeleteReservation
+        AFTER DELETE ON
+        reservation
+      BEGIN
+        UPDATE user SET available=1 where studentID=OLD.studentID;
+        UPDATE seat SET available=1 where roomNum=OLD.roomNum AND seatNum=OLD.seatNum;
+      END;
+    `)
+  })
+  db.close()
+}
+
+export function getSeat(roomNum, handler) {
+  const sqlite3 = sqlite.verbose()
+  const db = new sqlite3.Database('db.db')
+  db.all(`
+    SELECT seatNum, available
+    FROM   seat
+    WHERE  roomNum=(?)`,
+    [roomNum],
+    (err, rows) => handler({ seat: rows })
+  )
 }
 
 export function getPattern(handler) {
-  const sqlite3 = sqlite.verbose();
-  const db = new sqlite3.Database('db.db');
-  db.all('SELECT st_id FROM user', (err, rows) => {
-    rows = rows.map(row => row.st_id);
-    rows = rows.join('|');
-    handler({ pattern: rows });
-  });
-  db.close();
+  const sqlite3 = sqlite.verbose()
+  const db = new sqlite3.Database('db.db')
+  db.all('SELECT studentID FROM user', (err, rows) => {
+    rows = rows.map(row => row.studentID)
+    rows = rows.join('|')
+    handler({ pattern: rows })
+  })
+  db.close()
 }
 
-export function reserve({ st_id, seat_num, start, end, password }, handler) {
-  const sqlite3 = sqlite.verbose();
-  const db = new sqlite3.Database('db.db');
+export function reserve({ studentID, roomNum, seatNum, start, end, password }, handler) {
+  const sqlite3 = sqlite.verbose()
+  const db = new sqlite3.Database('db.db')
+
+  if (start === undefined) {
+    start = ""
+    end = ""
+  }
+  
   db.run(`
     INSERT INTO reservation(
-      st_id, seat_num, start_time, end_time, password
-    ) VALUES(?, ?, ?, ?, ?);`,
-    [st_id, seat_num, start, end, password],
-    (err) => handler({
-      status: (err === null) ? "reserve_success" : "reserve_failed"
-    })
-  );
-  db.close();
+      studentID, roomNum, seatNum, startTime, endTime, password
+    ) VALUES (?, ?, ?, ?, ?, ?)`,
+    [studentID, roomNum, seatNum, start, end, password],
+    (err) => {
+      const state = { status: '' }
+
+      if (!err)
+        state.status = 'reserveSuccess'
+      
+      else if (err.stack.match('studentID'))
+        state.status = 'reserveFailedStudentID'
+
+      else if (err.stack.match('seatNum'))
+        state.status = 'reserveFailed_seatNum'
+
+      else {
+        console.error(err)
+        return
+      }
+      
+      handler(state)
+    }
+  )
+  db.close()
 }
 
-export function getReservation({ st_id }, handler) {
-  const sqlite3 = sqlite.verbose();
-  const db = new sqlite3.Database('db.db');
+export function getReservation({ studentID }, handler) {
+  const sqlite3 = sqlite.verbose()
+  const db = new sqlite3.Database('db.db')
   db.get(`
-    SELECT st_id, seat_num, start_time, end_time
+    SELECT studentID, roomNum, seatNum, startTime, endTime
     FROM   reservation
-    WHERE  st_id=(?) AND created=date('now')`,
-    st_id.value,
+    WHERE  studentID=(?)`,
+    studentID.value,
     (err, row) => {
       if (row === undefined) {
-        handler({
-          status: "select_failed",
-          seat_num: st_id.value,
-          seat_num: "",
-          start_time: {
-            hour: "09",
-            minute: "00",
-          },
-          end_time: {
-            hour: "09",
-            minute: "00",
-          },
-        })
-        return;
+        row = {
+          studentID: '',
+          roomNum: '',
+          seatNum: '',
+          startTime: '',
+          endTime: '',
+          status: 'selectFailed',
+        }
       }
-
-      const start_time = row.start_time.split(":");
-      const end_time = row.end_time.split(":");
-      row.start_time = {
-        hour: start_time[0],
-        minute: start_time[1]
+      else {
+        row.status = 'selectSuccess'
       }
-      row.end_time = {
-        hour: end_time[0],
-        minute: end_time[1]
-      }
-      row.status = "select_success";
-      handler(row);
+      handler(row)
     }
-  );
-  db.close();
+  )
+  db.close()
 }
 
-export function getReservationList(seat_num, handler) {
-  const sqlite3 = sqlite.verbose();
-  const db = new sqlite3.Database('db.db');
+export function getReservationList(seatNum, handler) {
+  const sqlite3 = sqlite.verbose()
+  const db = new sqlite3.Database('db.db')
   db.all(`
-    SELECT st_id, start_time, end_time
+    SELECT studentID, startTime, endTime
     FROM   reservation
-    WHERE  seat_num=(?) AND created=date('now', 'localtime')`,
-    [seat_num],
+    WHERE  seatNum=(?)`,
+    [seatNum],
     (err, rows) => {
-      handler({ st_list: rows });
+      handler({ studentList: rows })
     }
-  );
-  db.close();
+  )
+  db.close()
 }
 
-export function validate(form) {
+export function preprocess(form) {
   const formData = Object.values(form)
     .reduce((arr, ele) => {
-      try {
-        arr[ele.name] = form[ele.name].value;
-      } catch {}
+      if (!["", undefined, form.name].includes(ele.name))
+        arr[ele.name] = form[ele.name].value
+
       return arr
-    }, {});
+    }, {})
 
-  formData.password = encrypt(formData);
-  return formData;
+  formData.password = encrypt(formData)
+  return formData
 }
 
-export function encrypt({ st_id, password }) {
-  const hash = crypto.createHmac('sha256', st_id)
+function encrypt({ studentID, password }) {
+  const hash = crypto.createHmac('sha256', studentID)
     .update(password)
-    .digest('hex');
-  return hash;
+    .digest('hex')
+  return hash
 }
 
-function updateDB({ seat_num, start, end, st_id, password }, handler) {
-  const sqlite3 = sqlite.verbose();
-  const db = new sqlite3.Database('db.db');
+function updateDB({ seatNum, start, end, studentID, password }, handler) {
+  const sqlite3 = sqlite.verbose()
+  const db = new sqlite3.Database('db.db')
   db.run(`
       UPDATE reservation
-      SET seat_num=(?), start_time=(?), end_time=(?)
-      WHERE st_id=(?) AND password=(?) AND created=date('now', 'localtime');
+      SET seatNum=(?), startTime=(?), endTime=(?)
+      WHERE studentID=(?) AND password=(?)
     `,
-    [seat_num, start, end, st_id, password],
+    [seatNum, start, end, studentID, password],
     function (err) {
       if (err)
-        console.error(err.message);
+        console.error(err.message)
 
       handler({
-        status: (this.changes === 1) ? "modify_success" : "verify_failed"
+        status: (this.changes === 1) ? 'modifySuccess' : 'verifyFailed'
       })
     }
-  );
-  db.close();
+  )
+  db.close()
 }
 
-function deleteDB({ st_id, password }, handler) {
-  const sqlite3 = sqlite.verbose();
-  const db = new sqlite3.Database('db.db');
+function deleteDB({ studentID, password }, handler) {
+  const sqlite3 = sqlite.verbose()
+  const db = new sqlite3.Database('db.db')
   db.run(`
       DELETE FROM reservation
-      WHERE st_id=(?) AND password=(?) AND created=date('now', 'localtime');
+      WHERE studentID=(?) AND password=(?)
     `,
-    [st_id, password],
+    [studentID, password],
     function (err) {
       if (err)
-        console.error(err.message);
+        console.error(err.message)
 
       handler({
-        status: (this.changes === 1) ? "delete_success" : "verify_failed"
+        status: (this.changes === 1) ? 'deleteSuccess' : 'verifyFailed'
       })
     }
-  );
-  db.close();
+  )
+  db.close()
 }
 
 export function modify(formData, handler) {
   const {
     action
-  } = formData;
+  } = formData
 
-  if (action === "modify") {
-    updateDB(formData, handler);
-  } else if (action === "cancel") {
-    deleteDB(formData, handler);
+  if (action === 'modify') {
+    updateDB(formData, handler)
+  } else if (action === 'cancel') {
+    deleteDB(formData, handler)
   } else {
-    console.error("something wrong!");
+    console.error('something wrong!')
   }
 }
