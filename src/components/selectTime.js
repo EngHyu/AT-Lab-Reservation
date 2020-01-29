@@ -1,4 +1,5 @@
-import React, { useState, Component } from 'react'
+import React, { /*useState,*/ Component } from 'react'
+import PropTypes from 'prop-types'
 import { InputGroup, InputGroupAddon, Input, ButtonGroup, Button } from 'reactstrap'
 
 const property = {
@@ -41,7 +42,9 @@ class Time extends Input {
       name,
     } = timeType
 
-    if (parseInt(event.target.value) > max) return
+    if (parseInt(event.target.value) > max)
+      return
+
     handler({
       [name]: event.target.value,
     })
@@ -73,6 +76,17 @@ class Time extends Input {
 }
 
 export default class SelectTime extends Component {
+  static propTypes = {
+    value: PropTypes.exact({
+      hour: PropTypes.string.isRequired,
+      minute: PropTypes.string.isRequired,
+    }),
+    type: PropTypes.string.isRequired,
+  }
+
+  static defaultProps = {
+  }
+
   state = {
     ...property['start'],
     hour: timeType.hour.min,

@@ -1,7 +1,15 @@
 import React, { Component } from 'react'
+import PropTypes from 'prop-types'
 import { Table } from 'reactstrap'
 
 class TR extends Component {
+  static propTypes = {
+    id: PropTypes.string.isRequired,
+    studentID: PropTypes.string.isRequired,
+    startTime: PropTypes.string.isRequired,
+    endTime: PropTypes.string.isRequired,
+  }
+
   static defaultProps = {
     id: '',
     studentID: '',
@@ -27,6 +35,14 @@ class TR extends Component {
 }
 
 export default class ReserveTable extends Component {
+  static propTypes = {
+    studentList: PropTypes.array.isRequired,
+  }
+
+  static defaultProps = {
+    studentList: [],
+  }
+
   render () {
     const {
       studentList,

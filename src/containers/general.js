@@ -1,8 +1,8 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import { Form, FormGroup, Col, Row } from 'reactstrap'
-import { Title, SelectSeat, Feedback, StudentID, SeatID, SelectTime, Password, Info, Caution } from '../components'
-import { preprocess, reserve, modify, initDB } from '../db/db'
+import { Title, SelectSeat, Feedback, StudentID, /*SeatID, SelectTime, Password,*/ Info, Caution } from '../components'
+import { preprocess, reserve, modify, /*initDB*/ } from '../db/db'
 import styles from '../components/selectSeat.module.css'
 import * as ko from '../strings/ko.json'
 

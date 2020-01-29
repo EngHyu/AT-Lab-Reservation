@@ -1,21 +1,27 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
-import { Row, FormGroup } from 'reactstrap'
-import { StudentID, SeatID, SelectTime, Password } from '../components'
+import { Row, /*FormGroup*/ } from 'reactstrap'
+import { /*StudentID,*/ SeatID, SelectTime, Password } from '../components'
 
 export default class Info extends Component {
-  state = {
-    startTime: '',
-    endTime: '',
-  }
-
   static propTypes = {
+    state: PropTypes.oneOf([
+      PropTypes.undefined,
+      PropTypes.exact({
+        studentID: PropTypes.string.isRequired,
+      }),
+    ]),
     type: PropTypes.string.isRequired,
     floor: PropTypes.number.isRequired,
     seatNum: PropTypes.number,
   }
 
-  componentDidUpdate(prevProps, prevState) {
+  state = {
+    startTime: '',
+    endTime: '',
+  }
+
+  componentDidUpdate(prevProps) {
     const { state } = this.props
     if (state === undefined) return
     

@@ -1,7 +1,12 @@
 import React, { Component } from 'react'
+import PropTypes from 'prop-types'
 import { InputGroup, InputGroupAddon, Input } from 'reactstrap'
 
 export default class SeatID extends Component {
+  static propTypes = {
+    value: PropTypes.number.isRequired,
+  }
+  
   state = {
     seatID: ''
   }
@@ -23,11 +28,7 @@ export default class SeatID extends Component {
     })
   }
 
-  render() {
-    const {
-      type
-    } = this.props
-    
+  render() {    
     const {
       seatID
     } = this.state

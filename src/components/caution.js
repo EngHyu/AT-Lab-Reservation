@@ -21,7 +21,7 @@ export default class Caution extends Component {
 
   render () {
     const {
-      title,
+      // title,
       warning,
       warningTexts,
       submit,

@@ -1,7 +1,15 @@
 import React, { Component } from 'react'
+import PropTypes from 'prop-types'
 import { Col, FormGroup, Button, Input } from 'reactstrap'
 
 export default class CancelOkBtn extends Component {
+  static propTypes = {
+    lang: PropTypes.exact({
+      cancel: PropTypes.string.isRequired,
+      modify: PropTypes.string.isRequired,
+    })
+  }
+
   state = {
     action: 'modify',
   }

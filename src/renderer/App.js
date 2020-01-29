@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
-import { ReserveSeat, ModifyReserve, EndUse, Reserve, Modify, End } from '../containers'
-import { ko, en } from '../strings'
+import { /*ReserveSeat, ModifyReserve, EndUse,*/ Reserve, Modify, End } from '../containers'
+import { ko, /*en*/ } from '../strings'
 import './App.global.css'
 
 export default class App extends Component {

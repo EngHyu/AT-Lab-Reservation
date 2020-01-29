@@ -1,9 +1,14 @@
 import React, { Component } from 'react'
-import { Col, Row, Form, FormGroup, Input } from 'reactstrap'
+import PropTypes from 'prop-types'
+import { Col, Row, Form, /*FormGroup,*/ Input } from 'reactstrap'
 import { SearchID, Info, CancelOkBtn, ReserveTable, Feedback } from '../components'
 import { preprocess, modify, getReservationList } from '../db/db'
 
 export default class ModifyReserve extends Component {
+  static propTypes = {
+    floor: PropTypes.number.isRequired,
+  }
+  
   state = {
     status: 'idle',
     studentID: '',
