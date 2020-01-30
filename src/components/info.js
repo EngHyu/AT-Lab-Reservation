@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import { Row, /*FormGroup*/ } from 'reactstrap'
-import { /*StudentID,*/ SeatID, SelectTime, Password } from '../components'
+import { StudentID, SearchID, SeatID, SelectTime, Password } from '../components'
 
 export default class Info extends Component {
   static propTypes = {
@@ -46,6 +46,11 @@ export default class Info extends Component {
 
     return (
       <Row noGutters={true}>
+        {
+          type === "input" ?
+          <StudentID /> :
+          <SearchID />
+        }
         <SeatID type={type} value={seatNum} />
         {
           floor === 5 &&

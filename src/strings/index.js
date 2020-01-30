@@ -1,7 +1,7 @@
 const glob = require('glob')
 const path = require('path')
 
-const folder = './src/strings/'
+const folder = `./${__dirname}/`
 const select = '!(index)'
 const format = '.json'
 const local = folder + select + format

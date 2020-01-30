@@ -1,9 +1,8 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
-import { Form, FormGroup, Col, Row } from 'reactstrap'
-import { Title, SelectSeat, Feedback, StudentID, /*SeatID, SelectTime, Password,*/ Info, Caution } from '../components'
+import { Form, FormGroup, Col } from 'reactstrap'
+import { Title, SelectSeat, Feedback, /*SeatID, SelectTime, Password,*/ Info, Caution } from '../components'
 import { preprocess, reserve, modify, /*initDB*/ } from '../db/db'
-import styles from '../components/selectSeat.module.css'
 import * as ko from '../strings/ko.json'
 
 class General extends Component {
@@ -53,11 +52,6 @@ class General extends Component {
         <FormGroup row className="mb-5">
           <Col md={{ size: 5, offset: 1 }}>
             <Feedback title={lang.info} status={status} />
-
-            <Row noGutters={true} className={styles.studentID}>
-              <StudentID type={type} />
-            </Row>
-      
             <Info type={type} seatNum={activeNum} floor={floor} />
           </Col>
           <Caution lang={lang[mode]} />
@@ -102,4 +96,4 @@ class End extends General {
   }
 }
 
-export default { Reserve, Modify, End }
+export { Reserve, Modify, End }
