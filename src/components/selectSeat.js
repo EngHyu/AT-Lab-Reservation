@@ -11,14 +11,15 @@ class Seat extends Component {
       available: PropTypes.number.isRequired,
     }),
     activeNum: PropTypes.number.isRequired,
+    reverseSelect: PropTypes.bool.isRequired,
     handler: PropTypes.func.isRequired,
     superHandler: PropTypes.func.isRequired,
   }
 
   static defaultProps = {
     seat: {
-      seatNum: -1,
-      available: 1,
+      seatNum: 0,
+      available: 0,
     }
   }
 
@@ -37,7 +38,8 @@ class Seat extends Component {
 
   render() {
     const {
-      activeNum
+      activeNum,
+      reverseSelect,
     } = this.props
 
     const {
@@ -51,7 +53,7 @@ class Seat extends Component {
       block={true}
       color='primary'
       className={styles.seat}
-      disabled={Boolean(!available)}
+      disabled={Boolean(reverseSelect ^ !available)}
       active={seatNum === activeNum}>
         <Input
         type='radio'
@@ -67,6 +69,7 @@ class Seat extends Component {
 class ClassRoom extends Component {
   static propTypes = {
     roomNum: PropTypes.number.isRequired,
+    reverseSelect: PropTypes.bool.isRequired,
     handler: PropTypes.func.isRequired,
   }
 
@@ -90,6 +93,7 @@ class ClassRoom extends Component {
   render() {
     const {
       roomNum,
+      reverseSelect,
       handler,
     } = this.props
 
@@ -111,7 +115,15 @@ class ClassRoom extends Component {
             <Col className={`btn-group-toggle ${styles.col}`} key={num}>
               {[...Array(6).keys()].map(ele => {
                   const id = num * 6 + ele
-                  return <Seat key={id} seat={seat[id]} activeNum={activeNum} handler={this.handler} superHandler={handler} />
+                  return (
+                    <Seat
+                      key={id}
+                      seat={seat[id]}
+                      activeNum={activeNum}
+                      reverseSelect={reverseSelect}
+                      handler={this.handler}
+                      superHandler={handler} />
+                  )
                 }
               )}
             </Col>
@@ -124,7 +136,22 @@ class ClassRoom extends Component {
 
 export default class SelectSeat extends Component {
   static propTypes = {
+    mode: PropTypes.string.isRequired,
     handler: PropTypes.func.isRequired,
+  }
+
+  state = {
+    reverseSelect: false,
+  }
+
+  componentDidMount() {
+    const {
+      mode,
+    } = this.props
+
+    this.setState({
+      reverseSelect: mode === "end"
+    })
   }
 
   render() {
@@ -132,10 +159,14 @@ export default class SelectSeat extends Component {
       handler,
     } = this.props
     
+    const {
+      reverseSelect
+    } = this.state
+
     return (
       <FormGroup row className='mb-5'>
         <Col md={{ size: 10, offset: 1 }}>
-          <ClassRoom roomNum={513} handler={handler} />
+          <ClassRoom roomNum={513} reverseSelect={reverseSelect} handler={handler} />
         </Col>
       </FormGroup>
     )

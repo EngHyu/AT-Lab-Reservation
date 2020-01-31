@@ -46,7 +46,7 @@ class General extends Component {
     } = this.state
     
     return (
-      <Form className="tabPanel mt-5" name="reserve_seat" onSubmit={this.handleSubmit}>
+      <Form className="tabPanel mt-5" name={mode} onSubmit={this.handleSubmit}>
         <Title  title={lang[mode].title} />
         <SelectSeat mode={mode} handler={this.handler} />
         <FormGroup row className="mb-5">
