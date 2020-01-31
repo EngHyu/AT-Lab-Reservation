@@ -71,6 +71,15 @@ export function initDB() {
       END;
     `)
     db.run(`
+      CREATE TRIGGER trackUpdateReservation
+        AFTER UPDATE ON
+        reservation
+      BEGIN
+        UPDATE seat SET available=0 where roomNum=NEW.roomNum AND seatNum=NEW.seatNum;
+        UPDATE seat SET available=1 where roomNum=OLD.roomNum AND seatNum=OLD.seatNum;
+      END;
+    `)
+    db.run(`
       CREATE TRIGGER trackDeleteReservation
         AFTER DELETE ON
         reservation
@@ -143,14 +152,14 @@ export function reserve({ studentID, roomNum, seatNum, start, end, password }, h
   db.close()
 }
 
-export function getReservation({ studentID }, handler) {
+export function getReservation(studentID, handler) {
   const sqlite3 = sqlite.verbose()
   const db = new sqlite3.Database('db.db')
   db.get(`
     SELECT studentID, roomNum, seatNum, startTime, endTime
     FROM   reservation
     WHERE  studentID=(?)`,
-    studentID.value,
+    studentID,
     (err, row) => {
       if (row === undefined) {
         row = {

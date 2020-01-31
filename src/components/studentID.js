@@ -1,10 +1,11 @@
 import React, { Component } from 'react'
+import PropTypes from 'prop-types'
 import { InputGroup, InputGroupAddon, Input, Button } from 'reactstrap'
 import { GoSearch } from 'react-icons/go'
-import { getPattern } from '../db/db'
+import { getPattern, getReservation } from '../db/db'
 import styles from './selectSeat.module.css'
 
-class StudentID extends Component {
+class DisplayID extends Component {
   state = {
     pattern: ''
   }
@@ -36,7 +37,22 @@ class StudentID extends Component {
   }
 }
 
-class SearchID extends StudentID {
+class SearchID extends DisplayID {
+  static propTypes = {
+    handler: PropTypes.func.isRequired,
+  }
+
+  handleKeyPress = (event) => {
+    if (event.key !== "Enter")
+      return
+
+    event.preventDefault()
+    getReservation(
+      event.target.value,
+      this.props.handler
+    )
+  }
+
   render() {
     const {
       pattern,
@@ -47,9 +63,9 @@ class SearchID extends StudentID {
         <InputGroupAddon addonType='prepend'>
           학번
         </InputGroupAddon>
-        <Input name='studentID' pattern={pattern} title={'일치하는 사용자가 없습니다.'} required />
+        <Input name='studentID' onKeyPress={this.handleKeyPress} pattern={pattern} title={'일치하는 사용자가 없습니다.'} required />
         <InputGroupAddon addonType='append'>
-          <Button outline={true}>
+          <Button outline={true} onClick={this.handleClick}>
             <GoSearch/>
           </Button>
         </InputGroupAddon>
@@ -58,4 +74,22 @@ class SearchID extends StudentID {
   }
 }
 
-export { StudentID, SearchID }
+export default class StudentID extends Component {
+  static propTypes = {
+    type: PropTypes.string.isRequired,
+    handler: PropTypes.func.isRequired,
+  }
+
+  render() {
+    const {
+      type,
+      handler,
+    } = this.props
+
+    return (
+      type === "input" ?
+      <DisplayID /> :
+      <SearchID handler={handler} />
+    )
+  }
+}

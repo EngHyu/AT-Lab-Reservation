@@ -4,7 +4,11 @@ import { InputGroup, InputGroupAddon, Input } from 'reactstrap'
 
 export default class SeatID extends Component {
   static propTypes = {
-    value: PropTypes.number.isRequired,
+    seatNum: PropTypes.oneOfType([
+      PropTypes.number.isRequired,
+      PropTypes.string.isRequired,
+    ]),
+    activeNum: PropTypes.number,
   }
   
   state = {
@@ -12,11 +16,15 @@ export default class SeatID extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    if (this.props.value !== prevProps.value) {
-      this.setState({
-        seatID: this.props.value
-      })
+    const update = (key) => {
+      if (this.props[key] !== prevProps[key]) {
+        this.setState({
+          seatID: this.props[key]
+        })
+      }  
     }
+    update("seatNum")
+    update("activeNum")
   }
 
   handleChange = (event) => {

@@ -24,7 +24,6 @@ export default class Feedback extends Component {
       return
     
     const state = feedback[status]
-    console.log(feedback);
     this.setState(state)
     setTimeout(
       ()=>{

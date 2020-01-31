@@ -42,7 +42,6 @@ class General extends Component {
 
     const {
       status,
-      activeNum,
     } = this.state
     
     return (
@@ -52,7 +51,7 @@ class General extends Component {
         <FormGroup row className="mb-5">
           <Col md={{ size: 5, offset: 1 }}>
             <Feedback title={lang.info} status={status} />
-            <Info type={type} seatNum={activeNum} floor={floor} />
+            <Info type={type} state={this.state} floor={floor} handler={this.handler} />
           </Col>
           <Caution lang={lang[mode]} />
         </FormGroup>

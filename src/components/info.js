@@ -1,19 +1,14 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import { Row, /*FormGroup*/ } from 'reactstrap'
-import { StudentID, SearchID, SeatID, SelectTime, Password } from '../components'
+import { StudentID, SeatID, SelectTime, Password } from '../components'
 
 export default class Info extends Component {
   static propTypes = {
-    state: PropTypes.oneOf([
-      PropTypes.undefined,
-      PropTypes.exact({
-        studentID: PropTypes.string.isRequired,
-      }),
-    ]),
+    state: PropTypes.object.isRequired,
     type: PropTypes.string.isRequired,
     floor: PropTypes.number.isRequired,
-    seatNum: PropTypes.number,
+    handler: PropTypes.func.isRequired,
   }
 
   state = {
@@ -21,23 +16,28 @@ export default class Info extends Component {
     endTime: '',
   }
 
-  componentDidUpdate(prevProps) {
-    const { state } = this.props
-    if (state === undefined) return
+  // componentDidUpdate(prevProps) {
+  //   const { state } = this.props
+  //   if (state === undefined) return
     
-    const { studentID } = state
-    const prevStudentID = prevProps.state.studentID
+  //   const { studentID } = state
+  //   const prevStudentID = prevProps.state.studentID
     
-    if (studentID === prevStudentID) return
-    this.setState(state)
-  }
+  //   if (studentID === prevStudentID) return
+  //   this.setState(state)
+  // }
 
   render() {
     const {
       type,
       floor,
-      seatNum,
+      handler,
     } = this.props
+
+    const {
+      activeNum,
+      seatNum,
+    } = this.props.state
 
     const {
       startTime,
@@ -46,12 +46,8 @@ export default class Info extends Component {
 
     return (
       <Row noGutters={true}>
-        {
-          type === "input" ?
-          <StudentID /> :
-          <SearchID />
-        }
-        <SeatID type={type} value={seatNum} />
+        <StudentID type={type} handler={handler} />
+        <SeatID type={type} activeNum={activeNum} seatNum={seatNum} />
         {
           floor === 5 &&
           <SelectTime type='start' value={startTime} /> &&
