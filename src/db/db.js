@@ -236,7 +236,7 @@ function updateDB({ seatNum, start, end, studentID, password }, handler) {
   db.close()
 }
 
-function deleteDB({ studentID, password }, handler) {
+export function deleteDB({ studentID, password }, handler) {
   const sqlite3 = sqlite.verbose()
   const db = new sqlite3.Database('db.db')
   db.run(`

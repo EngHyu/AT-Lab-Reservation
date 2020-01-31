@@ -76,18 +76,18 @@ class SearchID extends DisplayID {
 
 export default class StudentID extends Component {
   static propTypes = {
-    type: PropTypes.string.isRequired,
+    mode: PropTypes.string.isRequired,
     handler: PropTypes.func.isRequired,
   }
 
   render() {
     const {
-      type,
+      mode,
       handler,
     } = this.props
 
     return (
-      type === "input" ?
+      mode === "reserve" ?
       <DisplayID /> :
       <SearchID handler={handler} />
     )
