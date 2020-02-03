@@ -10,10 +10,20 @@ const isDevelopment = process.env.NODE_ENV !== 'production'
 let mainWindow
 
 function createMainWindow() {
-  const window = new BrowserWindow({webPreferences: {nodeIntegration: true}})
+  const window = new BrowserWindow({
+    webPreferences: {
+      nodeIntegration: true,
+    },
+    resizable: isDevelopment,
+    movable: isDevelopment,
+    minimizable: isDevelopment,
+    fullscreen: !isDevelopment,
+  })
 
   if (isDevelopment) {
     window.webContents.openDevTools()
+    window.setPosition(2200, 0)
+    window.setSize(1000, 1058)
   }
 
   if (isDevelopment) {
