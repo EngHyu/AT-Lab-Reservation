@@ -54,11 +54,6 @@ export default class Feedback extends Component {
       name,
     } = this.state
 
-    console.log(feedback);
-    console.log(this.state);
-    
-    console.log(type, name);
-    
     const text = feedback[type][name]
 
     return (

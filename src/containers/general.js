@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import { Form, FormGroup, Col } from 'reactstrap'
 import { Title, SelectSeat, Feedback, /*SeatID, SelectTime, Password,*/ Info, Caution } from '../components'
-import { preprocess, reserve, modify, deleteDB, /*initDB*/ } from '../db/db'
+import { preprocess, reserve, modify, deleteDB, initDB } from '../db/db'
 import * as ko from '../strings/ko.json'
 
 class General extends Component {
