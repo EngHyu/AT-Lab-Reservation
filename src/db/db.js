@@ -1,5 +1,6 @@
 import sqlite from 'sqlite3'
 import crypto from 'crypto'
+import { ko as lang } from '../strings'
 
 export function initDB() {
   const sqlite3 = sqlite.verbose()
@@ -130,16 +131,22 @@ export function reserve({ studentID, roomNum, seatNum, start, end, password }, h
     ) VALUES (?, ?, ?, ?, ?, ?)`,
     [studentID, roomNum, seatNum, start, end, password],
     (err) => {
-      const state = { status: '' }
+      const state = {
+        type: 'invalid',
+      }
 
-      if (!err)
-        state.status = 'reserveSuccess'
+      if (!err) {
+        state.type = 'valid'
+        state.name = 'reserveSuccess'
+      }
       
-      else if (err.stack.match('studentID'))
-        state.status = 'reserveFailedStudentID'
+      else if (err.stack.match('studentID')) {
+        state.name = 'reserveFailedStudentID'
+      }
 
-      else if (err.stack.match('seatNum'))
-        state.status = 'reserveFailed_seatNum'
+      else if (err.stack.match('seatNum')) {
+        state.name = 'reserveFailedSeatNum'
+      }
 
       else {
         console.error(err)
@@ -168,11 +175,13 @@ export function getReservation(studentID, handler) {
           seatNum: '',
           startTime: '',
           endTime: '',
-          status: 'selectFailed',
+          type: 'invalid',
+          name: 'selectFailed',
         }
       }
       else {
-        row.status = 'selectSuccess'
+        row.type = 'valid'
+        row.name = 'selectSuccess'
       }
       handler(row)
     }
@@ -228,9 +237,19 @@ function updateDB({ seatNum, start, end, studentID, password }, handler) {
       if (err)
         console.error(err.message)
 
-      handler({
-        status: (this.changes === 1) ? 'modifySuccess' : 'verifyFailed'
-      })
+      else if (this.changes === 1) {
+        handler({
+          type: 'valid',
+          name: 'modifySuccess',
+        })
+      }
+
+      else {
+        handler({
+          type: 'invalid',
+          name: 'verifyFailed',
+        })
+      }
     }
   )
   db.close()
@@ -248,9 +267,19 @@ export function deleteDB({ studentID, password }, handler) {
       if (err)
         console.error(err.message)
 
-      handler({
-        status: (this.changes === 1) ? 'deleteSuccess' : 'verifyFailed'
-      })
+      else if (this.changes === 1) {
+        handler({
+          type: 'valid',
+          name: 'deleteSuccess',
+        })
+      }
+
+      else {
+        handler({
+          type: 'invalid',
+          name: 'verifyFailed',
+        })
+      }
     }
   )
   db.close()

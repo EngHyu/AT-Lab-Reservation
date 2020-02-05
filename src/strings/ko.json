@@ -43,5 +43,23 @@
       "정리정돈 미실시 적발 시 패널티가 적용됩니다."
     ],
     "submit": "사용 종료"
+  },
+
+  "feedback": {
+    "idle": {
+      "idle": ""
+    },
+    "valid": {
+      "reserveSuccess": "* 예약을 완료했습니다.",
+      "selectSuccess": "* 예약 정보를 불러왔습니다.",
+      "modifySuccess": "* 예약을 수정하였습니다.",
+      "deleteSuccess": "* 예약 정보를 삭제했습니다."
+    },
+    "invalid": {
+      "reserveFailedStudentID": "* 이미 예약하셨습니다.",
+      "reserveFailed_seatNum": "* 이미 예약된 자리입니다.",
+      "selectFailed": "* 예약 정보가 없습니다.",
+      "verifyFailed": "* 비밀번호가 다릅니다."
+    }
   }
 }

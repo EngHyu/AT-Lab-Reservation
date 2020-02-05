@@ -1,33 +1,43 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import { Row } from 'reactstrap'
-import { feedback } from '../strings'
 
 export default class Feedback extends Component {
   static propTypes = {
-    status: PropTypes.string.isRequired,
-    title: PropTypes.string.isRequired,
+    type: PropTypes.string.isRequired,
+    name: PropTypes.string.isRequired,
+    lang: PropTypes.object.isRequired,
   }
 
   static defaultProps = {
-    status: "idle",
+    type: "idle",
+    name: "idle",
   }
 
-  state = feedback.idle
+  state = {
+    type: "idle",
+    name: "idle",
+  }
 
   componentDidUpdate(prevProps) {
     const {
-      status,
+      type,
+      name,
     } = this.props
-    
+
     if (this.props === prevProps)
       return
     
-    const state = feedback[status]
-    this.setState(state)
+    this.setState({
+      type,
+      name,
+    })
     setTimeout(
       ()=>{
-        this.setState(feedback.idle)
+        this.setState({
+          type: 'idle',
+          name: 'idle',
+        })
       },
       3000
     )
@@ -35,18 +45,26 @@ export default class Feedback extends Component {
 
   render() {
     const {
-      title,
-    } = this.props
+      info,
+      feedback,
+    } = this.props.lang
 
     const {
-      className,
-      text,
+      type,
+      name,
     } = this.state
+
+    console.log(feedback);
+    console.log(this.state);
+    
+    console.log(type, name);
+    
+    const text = feedback[type][name]
 
     return (
       <Row noGutters={true} className="space">
-        <h4>{title}</h4>
-        <span className={className}>{text}</span>
+        <h4>{info}</h4>
+        <span className={type}>{text}</span>
       </Row>
     )
   }
