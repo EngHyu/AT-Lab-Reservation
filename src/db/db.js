@@ -1,13 +1,11 @@
 import sqlite from 'sqlite3'
 import crypto from 'crypto'
-import { ko as lang } from '../strings'
 
 export function initDB() {
   const sqlite3 = sqlite.verbose()
   const db = new sqlite3.Database('db.db')
 
   db.serialize(() => {
-    // create table user
     db.run(`
       CREATE TABLE user (
         studentID INTEGER PRIMARY KEY,
@@ -15,18 +13,6 @@ export function initDB() {
         available BOOLEAN DEFAULT 1
       )
     `)
-
-    // insert dummy data into user
-    for (let i=0; i<=20000; i++) {
-      db.run(`
-        INSERT INTO user(
-          studentID, name
-        ) VALUES(?, ?)`,
-        [20161000+i, `user_${i}`]
-      )
-    }
-
-    // create table seat
     db.run(`
       CREATE TABLE seat (
         roomNum INTEGER NOT NULL,
@@ -35,18 +21,6 @@ export function initDB() {
         PRIMARY KEY(roomNum, seatNum)
       )
     `)
-
-    // insert dummy data into seat
-    for (let i=1; i<49; i++) {
-      db.run(`
-        INSERT INTO seat(
-          roomNum, seatNum
-        ) VALUES(?, ?)`,
-        [513, i]
-      )
-    }
-
-    // create table reservation
     db.run(`
       CREATE TABLE reservation(
         studentID INTEGER PRIMARY KEY,
@@ -60,8 +34,115 @@ export function initDB() {
         UNIQUE(roomNum, seatNum)
       )
     `)
+    db.run(`
+      CREATE TABLE log (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        created DATETIME DEFAULT (DATETIME('now', 'localtime')),
+        tableName TEXT NOT NULL,
+        action TEXT NOT NULL,
+        props TEXT NOT NULL
+      );
+    `)
 
     // create trigger controls available
+    db.run(`
+      CREATE TRIGGER insertUser
+        AFTER INSERT ON
+        user
+      BEGIN
+        INSERT INTO log(tableName, action, props)
+        VALUES(
+          'user',
+          'insert',
+          'user=' || NEW.studentID || ', ' ||
+          'name=' || NEW.name || ', ' ||
+          'available=' || NEW.available
+        );
+      END;
+    `)
+    db.run(`
+      CREATE TRIGGER updateUser
+        AFTER UPDATE ON
+        user
+      BEGIN
+        INSERT INTO log(tableName, action, props)
+        VALUES(
+          'user',
+          'update',
+          'user from=' || OLD.studentID || ', ' ||
+          'to=' || NEW.studentID || ', ' ||
+          'name from=' || OLD.name || ', ' ||
+          'to=' || NEW.name || ', ' ||
+          'available from=' || OLD.available || ', ' ||
+          'to=' || NEW.available
+        );
+      END;
+    `)
+    db.run(`
+      CREATE TRIGGER deleteUser
+        AFTER DELETE ON
+        user
+      BEGIN
+        INSERT INTO log(tableName, action, props)
+        VALUES(
+          'user',
+          'delete',
+          'user=' || OLD.studentID || ', ' ||
+          'name=' || OLD.name || ', ' ||
+          'available=' || OLD.available
+        );
+      END;
+    `)
+
+    db.run(`
+      CREATE TRIGGER insertSeat
+        AFTER INSERT ON
+        seat
+      BEGIN
+        INSERT INTO log(tableName, action, props)
+        VALUES(
+          'seat',
+          'insert',
+          'room number=' || NEW.roomNum || ', ' ||
+          'seat number=' || NEW.seatNum || ', ' ||
+          'available=' || NEW.available
+        );
+      END;
+    `)
+    db.run(`
+      CREATE TRIGGER updateSeat
+        AFTER UPDATE ON
+        seat
+      BEGIN
+        INSERT INTO log(tableName, action, props)
+        VALUES(
+          'seat',
+          'update',
+          'room number from=' || OLD.roomNum || ', ' ||
+          'to=' || NEW.roomNum || ', ' ||
+          'seat number from=' || OLD.seatNum || ', ' ||
+          'to=' || NEW.seatNum || ', ' ||
+          'available from=' || OLD.available || ', ' ||
+          'to=' || NEW.available
+        );
+      END;
+    `)
+    db.run(`
+      CREATE TRIGGER deleteSeat
+        AFTER DELETE ON
+        seat
+      BEGIN
+        INSERT INTO log(tableName, action, props)
+        VALUES(
+          'seat',
+          'delete',
+          'room number=' || OLD.roomNum || ', ' ||
+          'seat number=' || OLD.seatNum || ', ' ||
+          'available=' || OLD.available
+        );
+      END;
+    `)
+
     db.run(`
       CREATE TRIGGER trackInsertReservation
         AFTER INSERT ON
@@ -69,6 +150,14 @@ export function initDB() {
       BEGIN
         UPDATE user SET available=0 where studentID=NEW.studentID;
         UPDATE seat SET available=0 where roomNum=NEW.roomNum AND seatNum=NEW.seatNum;
+        INSERT INTO log(tableName, action, props)
+        VALUES(
+          'reservation',
+          'insert',
+          'user=' || NEW.studentID || ', ' ||
+          'room number=' || NEW.roomNum || ', ' ||
+          'seat number=' || NEW.seatNum
+        );
       END;
     `)
     db.run(`
@@ -78,6 +167,16 @@ export function initDB() {
       BEGIN
         UPDATE seat SET available=0 where roomNum=NEW.roomNum AND seatNum=NEW.seatNum;
         UPDATE seat SET available=1 where roomNum=OLD.roomNum AND seatNum=OLD.seatNum;
+        INSERT INTO log(tableName, action, props)
+        VALUES(
+          'reservation',
+          'update',
+          'user=' || NEW.studentID || ', ' ||
+          'room number from=' || OLD.roomNum || ', ' ||
+          'to=' || NEW.roomNum || ', ' ||
+          'seat number from=' || OLD.seatNum || ', ' ||
+          'to=' || NEW.seatNum
+        );
       END;
     `)
     db.run(`
@@ -87,8 +186,34 @@ export function initDB() {
       BEGIN
         UPDATE user SET available=1 where studentID=OLD.studentID;
         UPDATE seat SET available=1 where roomNum=OLD.roomNum AND seatNum=OLD.seatNum;
+        INSERT INTO log(tableName, action, props)
+        VALUES(
+          'reservation',
+          'delete',
+          'user=' || OLD.studentID || ', ' ||
+          'room number=' || OLD.roomNum || ', ' ||
+          'seat number=' || OLD.seatNum
+        );
       END;
     `)
+
+    // insert dummy data
+    for (let i=0; i<=1000; i++) {
+      db.run(`
+        INSERT INTO user(
+          studentID, name
+        ) VALUES(?, ?)`,
+        [20161000+i, `user_${i}`]
+      )
+    }
+    for (let i=1; i<49; i++) {
+      db.run(`
+        INSERT INTO seat(
+          roomNum, seatNum
+        ) VALUES(?, ?)`,
+        [513, i]
+      )
+    }
   })
   db.close()
 }
