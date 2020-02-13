@@ -3,18 +3,12 @@ import PropTypes from 'prop-types'
 import { Form, FormGroup, Col } from 'reactstrap'
 import { Title, SelectSeat, Feedback, /*SeatID, SelectTime, Password,*/ Info, Caution } from '../components'
 import { preprocess, reserve, modify, deleteDB, initDB } from '../db/db'
-import * as ko from '../strings/ko.json'
 
 class General extends Component {
   static propTypes = {
-    floor: PropTypes.number.isRequired,
+    floor: PropTypes.string.isRequired,
     mode: PropTypes.string.isRequired,
     lang: PropTypes.object.isRequired,
-  }
-
-  static defaultProps = {
-    floor: 4,
-    lang: ko.default,
   }
 
   state = {
@@ -66,7 +60,7 @@ class General extends Component {
         <FormGroup row className="mb-5">
           <Col md={{ size: 5, offset: 1 }}>
             <Feedback lang={lang} type={type} name={name} handler={this.handler} />
-            <Info lang={lang} mode={mode} state={this.state} floor={floor} handler={this.handler} />
+            <Info lang={lang} mode={mode} state={this.state} floor={parseInt(floor)} handler={this.handler} />
           </Col>
           <Caution lang={lang[mode]} />
         </FormGroup>

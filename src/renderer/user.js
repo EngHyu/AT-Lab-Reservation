@@ -9,19 +9,10 @@ export default class User extends Component {
   static propTypes = {
     match: PropTypes.shape({
       params: PropTypes.exact({
-        floor: PropTypes.number.isRequired,
-        lang: PropTypes.object.isRequired,
+        lang: PropTypes.string.isRequired,
+        floor: PropTypes.string.isRequired,
       })
     })
-  }
-
-  static defaultProps = {
-    match: {
-      params: {
-        floor: 4,
-        lang: 'en',
-      }
-    }
   }
 
   render () {
@@ -32,7 +23,7 @@ export default class User extends Component {
     
     return (
       <div>
-        <Link to="/admin">Admin</Link>
+        <Link to={`/${lang}/${floor}/admin`}>Admin</Link>
         {<Reserve floor={floor} lang={strings[lang]} />}
         {<Modify floor={floor} lang={strings[lang]} />}
         {<End floor={floor} lang={strings[lang]} />}
