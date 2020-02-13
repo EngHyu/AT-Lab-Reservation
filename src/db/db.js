@@ -1,5 +1,8 @@
 import sqlite from 'sqlite3'
 import crypto from 'crypto'
+import { scheduleJob } from 'node-schedule'
+
+scheduleJob('0 0 * * *', resetReservation)
 
 export function initDB() {
   const sqlite3 = sqlite.verbose()
@@ -228,6 +231,13 @@ export function getSeat(roomNum, handler) {
     [roomNum],
     (err, rows) => handler({ seat: rows })
   )
+}
+
+function resetReservation() {
+  const sqlite3 = sqlite.verbose()
+  const db = new sqlite3.Database('db.db')
+  db.get('DELETE FROM reservation')
+  db.close()
 }
 
 export function getPattern(handler) {
