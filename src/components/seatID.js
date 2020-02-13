@@ -4,6 +4,7 @@ import { InputGroup, InputGroupAddon, Input } from 'reactstrap'
 
 export default class SeatID extends Component {
   static propTypes = {
+    title: PropTypes.string.isRequired,
     seatNum: PropTypes.oneOfType([
       PropTypes.number.isRequired,
       PropTypes.string.isRequired,
@@ -39,7 +40,11 @@ export default class SeatID extends Component {
     })
   }
 
-  render() {    
+  render() {
+    const {
+      title
+    } = this.props
+    
     const {
       seatID
     } = this.state
@@ -47,7 +52,7 @@ export default class SeatID extends Component {
     return (
       <InputGroup size='lg'>
         <InputGroupAddon addonType='prepend'>
-          좌석 번호
+          {title}
         </InputGroupAddon>
         <Input name='seatNum' value={seatID} onChange={this.handleChange} required />
       </InputGroup>

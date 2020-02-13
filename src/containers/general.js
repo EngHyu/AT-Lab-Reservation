@@ -66,7 +66,7 @@ class General extends Component {
         <FormGroup row className="mb-5">
           <Col md={{ size: 5, offset: 1 }}>
             <Feedback lang={lang} type={type} name={name} handler={this.handler} />
-            <Info mode={mode} state={this.state} floor={floor} handler={this.handler} />
+            <Info lang={lang} mode={mode} state={this.state} floor={floor} handler={this.handler} />
           </Col>
           <Caution lang={lang[mode]} />
         </FormGroup>

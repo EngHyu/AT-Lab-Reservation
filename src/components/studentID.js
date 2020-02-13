@@ -6,6 +6,10 @@ import { getPattern, getReservation } from '../db/db'
 import styles from './selectSeat.module.css'
 
 class DisplayID extends Component {
+  static propTypes = {
+    title: PropTypes.string.isRequired,
+  }
+
   state = {
     pattern: ''
   }
@@ -23,13 +27,17 @@ class DisplayID extends Component {
 
   render() {
     const {
+      title
+    } = this.props
+
+    const {
       pattern,
     } = this.state
 
     return (
       <InputGroup size='lg' className={styles.studentID}>
         <InputGroupAddon addonType='prepend'>
-          학번
+          {title}
         </InputGroupAddon>
         <Input name='studentID' pattern={pattern} title={'일치하는 사용자가 없습니다.'} required />
       </InputGroup>
@@ -39,6 +47,7 @@ class DisplayID extends Component {
 
 class SearchID extends DisplayID {
   static propTypes = {
+    title: PropTypes.string.isRequired,
     handler: PropTypes.func.isRequired,
   }
 
@@ -55,13 +64,17 @@ class SearchID extends DisplayID {
 
   render() {
     const {
+      title
+    } = this.props
+
+    const {
       pattern,
     } = this.state
 
     return (
       <InputGroup size='lg' className={styles.studentID}>
         <InputGroupAddon addonType='prepend'>
-          학번
+          {title}
         </InputGroupAddon>
         <Input name='studentID' onKeyPress={this.handleKeyPress} pattern={pattern} title={'일치하는 사용자가 없습니다.'} required />
         <InputGroupAddon addonType='append'>
@@ -76,20 +89,22 @@ class SearchID extends DisplayID {
 
 export default class StudentID extends Component {
   static propTypes = {
+    title: PropTypes.string.isRequired,
     mode: PropTypes.string.isRequired,
     handler: PropTypes.func.isRequired,
   }
 
   render() {
     const {
+      title,
       mode,
       handler,
     } = this.props
 
     return (
       mode === "reserve" ?
-      <DisplayID /> :
-      <SearchID handler={handler} />
+      <DisplayID title={title} /> :
+      <SearchID title={title} handler={handler} />
     )
   }
 }

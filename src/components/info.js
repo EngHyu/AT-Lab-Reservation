@@ -5,8 +5,9 @@ import { StudentID, SeatID, SelectTime, Password } from '../components'
 
 export default class Info extends Component {
   static propTypes = {
-    state: PropTypes.object.isRequired,
+    lang: PropTypes.object.isRequired,
     mode: PropTypes.string.isRequired,
+    state: PropTypes.object.isRequired,
     floor: PropTypes.number.isRequired,
     handler: PropTypes.func.isRequired,
   }
@@ -29,6 +30,7 @@ export default class Info extends Component {
 
   render() {
     const {
+      lang,
       mode,
       floor,
       handler,
@@ -43,14 +45,14 @@ export default class Info extends Component {
 
     return (
       <Row noGutters={true}>
-        <StudentID mode={mode} handler={handler} />
-        <SeatID activeNum={activeNum} seatNum={seatNum} />
+        <StudentID title={lang.studentID} mode={mode} handler={handler} />
+        <SeatID title={lang.seatNum} activeNum={activeNum} seatNum={seatNum} />
         {
           floor === 5 &&
           <SelectTime type='start' value={startTime} /> &&
           <SelectTime type='end' value={endTime} />
         }
-        <Password />
+        <Password title={lang.password} />
       </Row>
     )
   }

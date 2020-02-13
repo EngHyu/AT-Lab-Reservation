@@ -2,33 +2,40 @@ import React, { Component } from 'react'
 import { Link } from 'react-router-dom'
 import PropTypes from 'prop-types'
 import { /*ReserveSeat, ModifyReserve, EndUse,*/ Reserve, Modify, End } from '../containers'
-import { ko, /*en*/ } from '../strings'
+import * as strings from '../strings'
 import './App.global.css'
 
 export default class User extends Component {
   static propTypes = {
-    floor: PropTypes.number.isRequired,
+    match: PropTypes.shape({
+      params: PropTypes.exact({
+        floor: PropTypes.number.isRequired,
+        lang: PropTypes.object.isRequired,
+      })
+    })
   }
 
-  state = {
-    lang: ko,
+  static defaultProps = {
+    match: {
+      params: {
+        floor: 4,
+        lang: 'en',
+      }
+    }
   }
 
   render () {
     const {
       floor,
-    } = this.props
-
-    const {
       lang,
-    } = this.state
-
+    } = this.props.match.params
+    
     return (
       <div>
         <Link to="/admin">Admin</Link>
-        {<Reserve floor={floor} lang={lang} />}
-        {<Modify floor={floor} lang={lang} />}
-        {<End floor={floor} lang={lang} />}
+        {<Reserve floor={floor} lang={strings[lang]} />}
+        {<Modify floor={floor} lang={strings[lang]} />}
+        {<End floor={floor} lang={strings[lang]} />}
       </div>
     )
   }
