@@ -37,12 +37,9 @@ export default class Info extends Component {
     const {
       activeNum,
       seatNum,
-    } = this.props.state
-
-    const {
       startTime,
       endTime,
-    } = this.state
+    } = this.props.state
 
     return (
       <Row noGutters={true}>

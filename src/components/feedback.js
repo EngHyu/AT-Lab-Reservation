@@ -7,6 +7,7 @@ export default class Feedback extends Component {
     type: PropTypes.string.isRequired,
     name: PropTypes.string.isRequired,
     lang: PropTypes.object.isRequired,
+    handler: PropTypes.func.isRequired,
   }
 
   static defaultProps = {
@@ -14,27 +15,18 @@ export default class Feedback extends Component {
     name: "idle",
   }
 
-  state = {
-    type: "idle",
-    name: "idle",
-  }
-
   componentDidUpdate(prevProps) {
     const {
-      type,
       name,
+      handler,
     } = this.props
 
-    if (this.props === prevProps)
+    if (name === prevProps["name"])
       return
-    
-    this.setState({
-      type,
-      name,
-    })
+
     setTimeout(
       ()=>{
-        this.setState({
+        handler({
           type: 'idle',
           name: 'idle',
         })
@@ -52,7 +44,7 @@ export default class Feedback extends Component {
     const {
       type,
       name,
-    } = this.state
+    } = this.props
 
     const text = feedback[type][name]
 

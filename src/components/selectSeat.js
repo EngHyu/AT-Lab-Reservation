@@ -10,10 +10,12 @@ class Seat extends Component {
       seatNum: PropTypes.number.isRequired,
       available: PropTypes.number.isRequired,
     }),
-    activeNum: PropTypes.number.isRequired,
+    activeNum: PropTypes.oneOfType([
+      PropTypes.number,
+      PropTypes.string,
+    ]).isRequired,
     reverseSelect: PropTypes.bool.isRequired,
     handler: PropTypes.func.isRequired,
-    superHandler: PropTypes.func.isRequired,
   }
 
   static defaultProps = {
@@ -26,14 +28,11 @@ class Seat extends Component {
   handleClick = (event) => {
     const {
       handler,
-      superHandler,
     } = this.props
 
-    const state = {
+    handler({
       activeNum: parseInt(event.target.value),
-    }
-    superHandler(state)
-    handler(state)
+    })
   }
 
   render() {
@@ -144,53 +143,40 @@ export default class SelectSeat extends Component {
         available: PropTypes.number.isRequired,
       })
     ).isRequired,
+    activeNum: PropTypes.oneOfType([
+      PropTypes.number,
+      PropTypes.string,
+    ]).isRequired,
     handler: PropTypes.func.isRequired,
   }
 
   static defaultProps = {
     roomNum: 513,
     seat: [],
-    activeNum: -1,
-  }
-
-  state = {
-    seat: [],
-    activeNum: -1,
-    reverseSelect: false,
-  }
-
-  handler = (state) => {
-    this.setState({
-      ...this.state,
-      ...state
-    })
+    activeNum: '',
   }
 
   componentDidMount() {
     const {
       roomNum,
-      mode,
+      handler,
     } = this.props
     
-    this.handler({
-      reverseSelect: mode === "end"
-    })
-    getSeat(roomNum, this.handler)
+    getSeat(roomNum, handler)
   }
 
   render() {
     const {
+      mode,
+      seat,
       roomNum,
+      activeNum,
       handler,
     } = this.props
 
-    const {
-      seat,
-      activeNum,
-      reverseSelect,
-    } = this.state
+    const reverseSelect = mode === 'end'
 
-    getSeat(roomNum, this.handler)
+    getSeat(roomNum, handler)
 
     return (
       <FormGroup row className='mb-5'>
@@ -210,8 +196,7 @@ export default class SelectSeat extends Component {
                         seat={seat[id]}
                         activeNum={activeNum}
                         reverseSelect={reverseSelect}
-                        handler={this.handler}
-                        superHandler={handler} />
+                        handler={handler} />
                     )
                   }
                 )}

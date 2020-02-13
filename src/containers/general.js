@@ -18,9 +18,10 @@ class General extends Component {
   }
 
   state = {
-    status: "idle",
+    type: 'idle',
+    name: 'idle',
+    seat: [],
     activeNum: -1,
-    key: 0,
   }
 
   handler = (state) => {
@@ -39,7 +40,7 @@ class General extends Component {
 
   handleReset = () => {
     this.handler({
-      key: this.state.key+1,
+      activeNum: '',
     })
   }
 
@@ -52,18 +53,19 @@ class General extends Component {
     } = this.props
 
     const {
-      key,
       type,
       name,
+      seat,
+      activeNum,
     } = this.state
     
     return (
-      <Form key={key} onSubmit={this.handleSubmit} onReset={this.handleReset} name={mode} className="tabPanel mt-5">
+      <Form onSubmit={this.handleSubmit} onReset={this.handleReset} name={mode} className="tabPanel mt-5">
         <Title  title={lang[mode].title} />
-        <SelectSeat mode={mode} handler={this.handler} />
+        <SelectSeat mode={mode} seat={seat} activeNum={activeNum} handler={this.handler} />
         <FormGroup row className="mb-5">
           <Col md={{ size: 5, offset: 1 }}>
-            <Feedback lang={lang} type={type} name={name} />
+            <Feedback lang={lang} type={type} name={name} handler={this.handler} />
             <Info mode={mode} state={this.state} floor={floor} handler={this.handler} />
           </Col>
           <Caution lang={lang[mode]} />

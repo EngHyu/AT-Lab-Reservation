@@ -8,7 +8,10 @@ export default class SeatID extends Component {
       PropTypes.number.isRequired,
       PropTypes.string.isRequired,
     ]),
-    activeNum: PropTypes.number,
+    activeNum: PropTypes.oneOfType([
+      PropTypes.number,
+      PropTypes.string,
+    ]).isRequired,
   }
   
   state = {
