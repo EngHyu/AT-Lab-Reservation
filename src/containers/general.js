@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import { Form, FormGroup, Col } from 'reactstrap'
 import { Title, SelectSeat, Feedback, /*SeatID, SelectTime, Password,*/ Info, Caution } from '../components'
-import { preprocess, reserve, modify, deleteDB, initDB } from '../db/db'
+import { preprocess, reserve, modify, deleteDB } from '../db/db'
 
 class General extends Component {
   static propTypes = {
@@ -39,7 +39,6 @@ class General extends Component {
   }
 
   render() {
-    // initDB()
     const {
       floor,
       mode,
