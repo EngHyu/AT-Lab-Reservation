@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
-import { Link } from 'react-router-dom'
 import PropTypes from 'prop-types'
+import { UserNavigation } from '../components'
 import { Reserve, Modify, End } from '../containers'
 import * as strings from '../strings'
 
@@ -22,10 +22,10 @@ export default class User extends Component {
     
     return (
       <div>
-        <Link to={`/${lang}/${floor}/admin`}>Admin</Link>
-        {<Reserve floor={floor} lang={strings[lang]} />}
-        {<Modify floor={floor} lang={strings[lang]} />}
-        {<End floor={floor} lang={strings[lang]} />}
+        {<UserNavigation lang={lang} floor={floor} />}
+        {<Reserve lang={strings[lang]} floor={floor} />}
+        {<Modify lang={strings[lang]} floor={floor} />}
+        {<End lang={strings[lang]} floor={floor} />}
       </div>
     )
   }
