@@ -8,6 +8,7 @@ import paginationFactory, { PaginationProvider, SizePerPageDropdownStandalone, P
 import ToolkitProvider, { Search, CSVExport } from 'react-bootstrap-table2-toolkit'
 import { getTable, updateTable, } from '../db/db'
 import { Title } from '../components'
+import * as strings from '../strings'
 
 function TableFunction({ paginationProps, tableProps, strings }) {
   const { SearchBar } = Search
@@ -85,7 +86,7 @@ function contentTable({ paginationProps, paginationTableProps, strings, state, c
 class ListTable extends Component {
   static propTypes = {
     type: PropTypes.string.isRequired,
-    strings: PropTypes.object.isRequired,
+    lang: PropTypes.string.isRequired,
     options: PropTypes.object.isRequired,
   }
 
@@ -111,15 +112,15 @@ class ListTable extends Component {
 
   makeInitialState(type, columnFields, keyFieldIndex=0) {
     const {
-      strings,
+      lang,
     } = this.props
 
     return {
       ...this.state,
-      title: strings[type],
+      title: strings[lang][type],
       columns: columnFields.map(({ field, width }) => ({
         dataField: field,
-        text: strings[field],
+        text: strings[lang][field],
         style: {
           width: width,
         },
@@ -141,6 +142,7 @@ class ListTable extends Component {
 
   render(feedback=null) {
     const {
+      lang,
       type,
       options,
     } = this.props
@@ -155,7 +157,7 @@ class ListTable extends Component {
         <PaginationProvider pagination={paginationFactory(options)}>
           { (props) => contentTable({
               ...props,
-              strings: this.props.strings,
+              strings: strings[lang],
               state: this.state,
               cellEdit: this.makeCellEditFactory(type),
             })
@@ -292,8 +294,12 @@ class ReservationTable extends ListTable {
 
   render() {
     const {
+      lang,
+    } = this.props
+    
+    const {
       passwordReset,
-    } = this.props.strings
+    } = strings[lang]
 
     return super.render(passwordReset)
   }

@@ -38,10 +38,10 @@
     "title": "cancel/modify reservation",
     "warning": "warnings for cancel/modify reservation",
     "warningTexts": [
-      "예약 취소 후 재예약이 가능합니다.",
-      "일회용 비밀번호를 잊었을 경우, 예약 취소/변경이 불가능합니다.",
-      "X513 개방 시간은 평상 시 09:00부터 23:00까지입니다.",
-      "시험 기간에는 24시간 개방합니다. (별도 공지 예정)"
+      "you can re-reserve after cancel reservation.",
+      "you can't cancel/modify reservation if you forget the password.",
+      "X513 opens from 09:00 to 23:00 normally.",
+      "X513 opens 24 hours in mid/final terms. (will be noticed)"
     ],
     "submit": {
       "cancel": "cancel",
@@ -53,9 +53,9 @@
     "title": "end of use",
     "warning": "warnings for end of usage",
     "warningTexts": [
-      "백업하지 않은 파일 유실에 대해 책임지지 않습니다.",
-      "사용 종료한 자리는 정리정돈 해주시기 바랍니다.",
-      "정리정돈 미실시 적발 시 패널티가 적용됩니다."
+      "no responsive for the loss of files that you did not back up.",
+      "clean up after usage.",
+      "student who didn't clean up will get penalty."
     ],
     "submit": "end of use"
   },

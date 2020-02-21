@@ -1,8 +1,6 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
-import { Link } from 'react-router-dom'
-import { UserTable, LogTable, ReservationTable } from '../components'
-import * as strings from '../strings'
+import { AdminNavigation, UserTable, LogTable, ReservationTable } from '../components'
 
 export default class Admin extends Component {
   static propTypes = {
@@ -22,10 +20,10 @@ export default class Admin extends Component {
 
     return (
       <div>
-        <Link to={`/${lang}/${floor}/user`}>back to User</Link>
-        {<UserTable strings={strings[lang]} />}
-        {<LogTable strings={strings[lang]} />}
-        {<ReservationTable strings={strings[lang]} />}
+        {<AdminNavigation lang={lang} floor={floor} />}
+        {<UserTable lang={lang} />}
+        {<LogTable lang={lang} />}
+        {<ReservationTable lang={lang} />}
       </div>
     )
   }
