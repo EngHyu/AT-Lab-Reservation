@@ -1,8 +1,23 @@
 {
+  "id": "#",
+  "log": "로그",
+  "name": "이름",
+  "created": "실행 시점",
+  "tableName": "테이블",
+  "action": "작업",
+  "count": "횟수",
+  "user": "사용자 랭킹",
+  "exportCSV": "CSV 저장",
+  "reservation": "예약 내역",
+  "passwordReset": "* 초기 비밀번호는 1111입니다.",
+
   "info": "인적사항",
   "studentID": "학번",
+  "roomNum": "방 번호",
   "seatNum": "좌석 번호",
   "password": "비밀번호",
+  "startTime": "시작",
+  "endTime": "종료",
 
   "reserve": {
     "title": "좌석 예약",

@@ -1,8 +1,23 @@
 {
+  "id": "#",
+  "log": "log",
+  "name": "name",
+  "created": "time",
+  "tableName": "table",
+  "action": "action",
+  "count": "count",
+  "user": "user ranking",
+  "exportCSV": "export CSV",
+  "reservation": "reservations",
+  "passwordReset": "* initial password is 1111",
+
   "info": "information",
   "studentID": "student ID",
+  "roomNum": "room no.",
   "seatNum": "seat no.",
   "password": "password",
+  "startTime": "start",
+  "endTime": "end",
 
   "reserve": {
     "title": "seat reservation",

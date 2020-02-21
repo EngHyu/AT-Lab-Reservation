@@ -1,9 +1,8 @@
 import React, { Component } from 'react'
 import { Link } from 'react-router-dom'
 import PropTypes from 'prop-types'
-import { /*ReserveSeat, ModifyReserve, EndUse,*/ Reserve, Modify, End } from '../containers'
+import { Reserve, Modify, End } from '../containers'
 import * as strings from '../strings'
-import './App.global.css'
 
 export default class User extends Component {
   static propTypes = {

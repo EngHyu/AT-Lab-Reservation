@@ -1,6 +1,10 @@
 /* bootstrap에 대한 전반적인 수정 */
 @import '~bootstrap/dist/css/bootstrap.min.css';
 
+caption {
+  caption-side: top !important;
+}
+
 .input-group {
   margin-bottom: -1px;
 }
@@ -42,4 +46,17 @@
 
 .invalid {
   color: #dc3545;
+}
+
+.table-function, .title {
+  display: flex;
+  justify-content: space-between;
+}
+
+.table-function > div {
+  display: flex;
+}
+
+.table-function button {
+  height: 38px;
 }
