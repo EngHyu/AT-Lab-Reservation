@@ -9,6 +9,7 @@ import ToolkitProvider, { Search, CSVExport } from 'react-bootstrap-table2-toolk
 import { getTable, updateTable, } from '../db/db'
 import { Title } from '../components'
 import * as strings from '../strings'
+import { setting } from '../strings'
 
 function TableFunction({ paginationProps, tableProps, strings }) {
   const { SearchBar } = Search
@@ -103,6 +104,27 @@ class ListTable extends Component {
     keyFieldIndex: 0,
   }
 
+  constructor(props) {
+    super(props)
+
+    const {
+      type,
+    } = props
+
+    this.state = this.makeInitialState(
+      type,
+      setting.columnFields[type],
+    )
+  }
+
+  componentDidMount() {
+    const {
+      type,
+    } = this.props
+
+    getTable(type, this.handler)
+  }
+  
   handler = (state) => {
     this.setState({
       ...this.state,
@@ -173,37 +195,6 @@ class UserTable extends ListTable {
     ...super.defaultProps,
     type: this.name.replace('Table', '').toLowerCase(),
   }
-
-  constructor(props) {
-    super(props)
-    const {
-      type,
-    } = props
-
-    this.state = this.makeInitialState(
-      type,
-      [
-        {
-          field: 'id',
-          width: "7%",
-        },
-        {
-          field: 'studentID',
-          width: "31%",
-        },
-        {
-          field: 'name',
-          width: "31%",
-        },
-        {
-          field: 'count',
-          width: "31%",
-        },
-      ],
-      1
-    )
-    getTable(type, this.handler)
-  }
 }
 
 class LogTable extends ListTable {
@@ -211,85 +202,12 @@ class LogTable extends ListTable {
     ...super.defaultProps,
     type: this.name.replace('Table', '').toLowerCase(),
   }
-
-  constructor(props) {
-    super(props)
-    const {
-      type,
-    } = props
-
-    this.state = this.makeInitialState(
-      type,
-      [
-        {
-          field: 'id',
-          width: '7%',
-        },
-        {
-          field: 'created',
-          width: '21%',
-        },
-        {
-          field: 'tableName',
-          width: '10%',
-        },
-        {
-          field: 'action',
-          width: '10%',
-        },
-        {
-          field: 'log',
-          width: 0,
-        },
-      ],
-    )
-    this.makeCellEditFactory = ()=>({})
-    getTable(type, this.handler)
-  }
 }
 
 class ReservationTable extends ListTable {
   static defaultProps = {
     ...super.defaultProps,
     type: this.name.replace('Table', '').toLowerCase(),
-  }
-
-  constructor(props) {
-    super(props)
-    const {
-      type,
-    } = props
-
-    this.state = this.makeInitialState(
-      type,
-      [
-        {
-          field: 'id',
-          width: '7%',
-        },
-        {
-          field: 'studentID',
-          width: '20%',
-        },
-        {
-          field: 'roomNum',
-          width: '13%',
-        },
-        {
-          field: 'seatNum',
-          width: '13%',
-        },
-        {
-          field: 'startTime',
-          width: '24%',
-        },
-        {
-          field: 'endTime',
-          width: 0,
-        },
-      ],
-    )
-    getTable(type, this.handler)
   }
 
   render() {
