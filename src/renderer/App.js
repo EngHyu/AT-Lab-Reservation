@@ -8,7 +8,7 @@ export default class App extends Component {
   render() {
     return (
       <Router>
-        <Redirect from="/" to="/ko/5/user" />
+        <Redirect from="/" to="/ko/4/user" />
         <Route path="/:lang/:floor/user" component={User} />
         <Route path="/:lang/:floor/admin" component={Admin} />
       </Router>
