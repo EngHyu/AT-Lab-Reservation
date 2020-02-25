@@ -19,6 +19,10 @@ caption {
   align-items: center;
 }
 
+.btn-group-toggle>.btn, .btn-group-toggle>.btn-group>.btn {
+  margin-bottom: 8px !important;
+}
+
 /* module.css로 들어가야 할 것들 */
 .two-btn > .col-md-6:nth-child(1) {
   padding-right: 7.5px;

@@ -13,16 +13,17 @@ export function initDB() {
       CREATE TABLE user (
         studentID INTEGER PRIMARY KEY,
         name TEXT NOT NULL,
-        count INTEGER DEFAULT 0
-      )
+        count INTEGER DEFAULT 0,
+        available BOOL DEFAULT 1
+      );
     `)
     db.run(`
       CREATE TABLE seat (
         roomNum INTEGER NOT NULL,
         seatNum INTEGER NOT NULL,
-        available INTEGER DEFAULT 0,
+        type INTEGER DEFAULT 0,
         PRIMARY KEY(roomNum, seatNum)
-      )
+      );
     `)
     db.run(`
       CREATE TABLE reservation(
@@ -34,7 +35,7 @@ export function initDB() {
         CONSTRAINT user_fk FOREIGN KEY(studentID) REFERENCES user(studentID),
         CONSTRAINT seat_fk FOREIGN KEY(roomNum, seatNum) REFERENCES seat(roomNum, seatNum),
         UNIQUE(roomNum, seatNum)
-      )
+      );
     `)
     db.run(`
       CREATE TABLE log (
@@ -106,7 +107,7 @@ export function initDB() {
           'insert',
           'room number=' || NEW.roomNum || ', ' ||
           'seat number=' || NEW.seatNum || ', ' ||
-          'available=' || NEW.available
+          'type=' || NEW.type
         );
       END;
     `)
@@ -123,8 +124,8 @@ export function initDB() {
           'to=' || NEW.roomNum || ', ' ||
           'seat number from=' || OLD.seatNum || ', ' ||
           'to=' || NEW.seatNum || ', ' ||
-          'available from=' || OLD.available || ', ' ||
-          'to=' || NEW.available
+          'type from=' || OLD.type || ', ' ||
+          'to=' || NEW.type
         );
       END;
     `)
@@ -139,7 +140,7 @@ export function initDB() {
           'delete',
           'room number=' || OLD.roomNum || ', ' ||
           'seat number=' || OLD.seatNum || ', ' ||
-          'available=' || OLD.available
+          'type=' || OLD.type
         );
       END;
     `)
@@ -149,8 +150,8 @@ export function initDB() {
         AFTER INSERT ON
         reservation
       BEGIN
-        UPDATE user SET count=count+1 where studentID=NEW.studentID;
-        UPDATE seat SET available=1 where roomNum=NEW.roomNum AND seatNum=NEW.seatNum;
+        UPDATE user SET count=count+available, available=0 where studentID=NEW.studentID;
+        UPDATE seat SET type=1 where roomNum=NEW.roomNum AND seatNum=NEW.seatNum;
         INSERT INTO log(tableName, action, log)
         VALUES(
           'reservation',
@@ -166,8 +167,8 @@ export function initDB() {
         AFTER UPDATE ON
         reservation
       BEGIN
-        UPDATE seat SET available=1 where roomNum=NEW.roomNum AND seatNum=NEW.seatNum;
-        UPDATE seat SET available=0 where roomNum=OLD.roomNum AND seatNum=OLD.seatNum;
+        UPDATE seat SET type=1 where roomNum=NEW.roomNum AND seatNum=NEW.seatNum;
+        UPDATE seat SET type=0 where roomNum=OLD.roomNum AND seatNum=OLD.seatNum;
         INSERT INTO log(tableName, action, log)
         VALUES(
           'reservation',
@@ -185,7 +186,7 @@ export function initDB() {
         AFTER DELETE ON
         reservation
       BEGIN
-        UPDATE seat SET available=0 where roomNum=OLD.roomNum AND seatNum=OLD.seatNum;
+        UPDATE seat SET type=0 where roomNum=OLD.roomNum AND seatNum=OLD.seatNum;
         INSERT INTO log(tableName, action, log)
         VALUES(
           'reservation',
@@ -202,7 +203,7 @@ export function initDB() {
       db.run(`
         INSERT INTO user(
           studentID, name
-        ) VALUES(?, ?)`,
+        ) VALUES(?, ?);`,
         [20161000+i, `user_${i}`]
       )
     }
@@ -210,7 +211,7 @@ export function initDB() {
       db.run(`
         INSERT INTO seat(
           roomNum, seatNum
-        ) VALUES(?, ?)`,
+        ) VALUES(?, ?);`,
         [513, i]
       )
     }
@@ -221,7 +222,8 @@ export function initDB() {
 function resetReservation() {
   const sqlite3 = sqlite.verbose()
   const db = new sqlite3.Database('db.db')
-  db.get('DELETE FROM reservation')
+  db.get('DELETE FROM reservation;')
+  db.get('UPDATE user SET available=1;')
   db.close()
 }
 
@@ -229,8 +231,8 @@ export function resetAllTable() {
   const sqlite3 = sqlite.verbose()
   const db = new sqlite3.Database('db.db')
   db.serialize(() => {
-    db.get('DELETE FROM reservation')
-    db.get('UPDATE user SET count=0')
+    db.get('DELETE FROM reservation;')
+    db.get('UPDATE user SET count=0;')
   })
   db.close()
 }
@@ -239,9 +241,9 @@ export function getSeat(roomNum, handler) {
   const sqlite3 = sqlite.verbose()
   const db = new sqlite3.Database('db.db')
   db.all(`
-    SELECT seatNum, available
+    SELECT seatNum, type
     FROM   seat
-    WHERE  roomNum=(?)`,
+    WHERE  roomNum=(?);`,
     [roomNum],
     (err, rows) => handler({ seat: rows })
   )
@@ -250,7 +252,7 @@ export function getSeat(roomNum, handler) {
 export function getPattern(handler) {
   const sqlite3 = sqlite.verbose()
   const db = new sqlite3.Database('db.db')
-  db.all('SELECT studentID FROM user', (err, rows) => {
+  db.all('SELECT studentID FROM user;', (err, rows) => {
     rows = rows.map(row => row.studentID)
     rows = rows.join('|')
     handler({ pattern: rows })
@@ -270,7 +272,7 @@ export function reserve({ studentID, roomNum, seatNum, start, end }, handler) {
   db.run(`
     INSERT INTO reservation(
       studentID, roomNum, seatNum, startTime, endTime
-    ) VALUES (?, ?, ?, ?, ?)`,
+    ) VALUES (?, ?, ?, ?, ?);`,
     [studentID, roomNum, seatNum, start, end],
     (err) => {
       const state = {
@@ -308,7 +310,7 @@ export function getReservation(studentID, handler) {
   db.get(`
     SELECT studentID, roomNum, seatNum, startTime, endTime
     FROM   reservation
-    WHERE  studentID=(?)`,
+    WHERE  studentID=(?);`,
     studentID,
     (err, row) => {
       if (row === undefined) {
@@ -357,7 +359,7 @@ function updateDB({ seatNum, start, end, studentID }, handler) {
   db.run(`
       UPDATE reservation
       SET seatNum=(?), startTime=(?), endTime=(?)
-      WHERE studentID=(?)
+      WHERE studentID=(?);
     `,
     [seatNum, start, end, studentID],
     function (err) {
@@ -382,35 +384,23 @@ function updateDB({ seatNum, start, end, studentID }, handler) {
   db.close()
 }
 
-export function deleteDB({ studentID }, handler, isCancel=false) {
+export function deleteDB(studentID, seatNum, roomNum, handler) {
   const sqlite3 = sqlite.verbose()
   const db = new sqlite3.Database('db.db')
   db.run(`
       DELETE FROM reservation
-      WHERE studentID=(?)
+      WHERE studentID=(?) and seatNum=(?);
     `,
-    studentID,
+    [studentID, seatNum],
     function (err) {
       if (err)
         console.error(err.message)
 
       else if (this.changes === 1) {
+        getSeat(roomNum, handler)
         handler({
           type: 'valid',
           name: 'deleteSuccess',
-        })
-
-        if (isCancel === false)
-          return
-
-        db.get(`
-          UPDATE user SET count=count-1
-          WHERE studentID=(?);
-        `,
-        [studentID],
-        function (err) {
-          if (err)
-            console.error(err)
         })
       }
 
@@ -423,20 +413,6 @@ export function deleteDB({ studentID }, handler, isCancel=false) {
     }
   )
   db.close()
-}
-
-export function modify(formData, handler) {
-  const {
-    action
-  } = formData
-
-  if (action === 'modify') {
-    updateDB(formData, handler)
-  } else if (action === 'cancel') {
-    deleteDB(formData, handler, true)
-  } else {
-    console.error('something wrong!')
-  }
 }
 
 export function getTable(type, handler) {

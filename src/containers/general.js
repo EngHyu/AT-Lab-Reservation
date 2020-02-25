@@ -52,11 +52,12 @@ export default class General extends Component {
     } = this.state
     
     return (
-      <Form onSubmit={this.handleSubmit} onReset={this.handleReset} className="tabPanel mt-5">
+      <Form onSubmit={this.handleSubmit} onReset={this.handleReset} name="form" className="mt-5">
         <Title title={strings.title} />
         <SelectSeat
           seat={seat}
           type={type}
+          strings={strings}
           roomNum={roomNum}
           activeNum={activeNum}
           handler={this.handler} />

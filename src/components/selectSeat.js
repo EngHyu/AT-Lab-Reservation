@@ -1,82 +1,20 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import { FormGroup, Col, Row, Button, Input } from 'reactstrap'
-import styles from './selectSeat.module.css'
+
 import { getSeat } from '../db/db'
-
-const color = ["primary", "success", "danger"]
-class Seat extends Component {
-  static propTypes = {
-    seat: PropTypes.exact({
-      seatNum: PropTypes.number.isRequired,
-      available: PropTypes.number.isRequired,
-    }),
-    activeNum: PropTypes.oneOfType([
-      PropTypes.number,
-      PropTypes.string,
-    ]).isRequired,
-    handler: PropTypes.func.isRequired,
-  }
-
-  static defaultProps = {
-    seat: {
-      seatNum: 0,
-      available: 0,
-    }
-  }
-
-  handleClick = (event) => {
-    const {
-      handler,
-    } = this.props
-
-    const {
-      available,
-    } = this.props.seat
-
-    handler({
-      activeNum: parseInt(event.target.value),
-      available: available,
-    })
-  }
-
-  render() {
-    const {
-      activeNum,
-    } = this.props
-
-    const {
-      seatNum,
-      available,
-    } = this.props.seat
-
-    return (
-      <Button
-      tag='label'
-      block={true}
-      color={color[available]}
-      className={styles.seat}
-      active={seatNum === activeNum}
-      disabled={available===2}>
-        <Input
-        type='radio'
-        name='seatNum'
-        value={seatNum} 
-        onClick={this.handleClick}
-        required/>{seatNum}
-      </Button>
-    )
-  }
-}
+import styles from './selectSeat.module.css'
+import { Seat } from '../components'
 
 export default class SelectSeat extends Component {
   static propTypes = {
+    strings: PropTypes.object.isRequired,
     roomNum: PropTypes.number.isRequired,
     type: PropTypes.string.isRequired,
     seat: PropTypes.arrayOf(
       PropTypes.exact({
         seatNum: PropTypes.number,
-        available: PropTypes.number.isRequired,
+        type: PropTypes.number.isRequired,
       })
     ).isRequired,
     activeNum: PropTypes.oneOfType([
@@ -104,6 +42,7 @@ export default class SelectSeat extends Component {
     const {
       seat,
       roomNum,
+      strings,
       activeNum,
       handler,
     } = this.props
@@ -124,6 +63,8 @@ export default class SelectSeat extends Component {
                       <Seat
                         key={id}
                         seat={seat[id]}
+                        strings={strings}
+                        roomNum={roomNum}
                         activeNum={activeNum}
                         handler={handler} />
                     )

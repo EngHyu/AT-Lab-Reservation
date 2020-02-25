@@ -5,7 +5,8 @@ import { GoEye, GoEyeClosed } from 'react-icons/go'
 
 export default class Password extends Component {
   static propTypes = {
-    title: PropTypes.string.isRequired,
+    placeholder: PropTypes.string.isRequired,
+    onKeyPress: PropTypes.func.isRequired,
   }
 
   state = {
@@ -31,7 +32,8 @@ export default class Password extends Component {
 
   render() {
     const {
-      title
+      placeholder,
+      onKeyPress,
     } = this.props
 
     const {
@@ -45,10 +47,12 @@ export default class Password extends Component {
 
     return (
       <InputGroup size='lg'>
-        <InputGroupAddon addonType='prepend'>
-          {title}
-        </InputGroupAddon>
-        <Input type={type} name='password' required />
+        <Input
+        type={type}
+        name='password'
+        onKeyPress={onKeyPress}
+        placeholder={placeholder}
+        required />
         <InputGroupAddon addonType='append'>
           <ButtonToggle outline={true} onClick={this.handleClick} active={isShow}>
             {icon}
