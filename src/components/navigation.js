@@ -4,12 +4,16 @@ import { Link } from 'react-router-dom'
 import { Nav, NavItem } from 'reactstrap'
 import * as strings from '../strings'
 
+const {
+  floor,
+} = strings.setting
+delete strings.setting
+
 class Navigation extends Component {
   static propTypes = {
     lang: PropTypes.string.isRequired,
     here: PropTypes.string.isRequired,
     link: PropTypes.string.isRequired,
-    floor: PropTypes.string.isRequired,
   }
 
   render () {
@@ -17,17 +21,13 @@ class Navigation extends Component {
       lang,
       here,
       link,
-      floor,
     } = this.props
 
     
     return (
       <Nav>
         {<NavItem>
-          <Link
-            className="nav-link"
-            to={`/${lang}/${floor}/${link}`}
-          >
+          <Link className="nav-link" to={`/${lang}/${floor}/${link}`}>
             {link}
           </Link>
         </NavItem>}

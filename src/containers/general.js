@@ -1,23 +1,23 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import { Form, FormGroup, Col } from 'reactstrap'
-import { Title, SelectSeat, Feedback, /*SeatID, SelectTime, Password,*/ Info, Caution } from '../components'
-import { preprocess, reserve, modify, deleteDB } from '../db/db'
+import { Title, SelectSeat, Feedback, Info, Caution } from '../components'
+import { preprocess, reserve, modify, deleteDB, getSeat } from '../db/db'
 
-class General extends Component {
+export default class General extends Component {
   static propTypes = {
-    floor: PropTypes.string.isRequired,
-    mode: PropTypes.string.isRequired,
-    lang: PropTypes.object.isRequired,
+    strings: PropTypes.object.isRequired,
   }
 
   state = {
     type: 'idle',
     name: 'idle',
     seat: [],
+    roomNum: 513,
     activeNum: -1,
   }
 
+  submit = reserve
   handler = (state) => {
     this.setState({
       ...this.state,
@@ -40,68 +40,34 @@ class General extends Component {
 
   render() {
     const {
-      floor,
-      mode,
-      lang,
+      strings,
     } = this.props
 
     const {
       type,
       name,
       seat,
+      roomNum,
       activeNum,
     } = this.state
     
     return (
-      <Form onSubmit={this.handleSubmit} onReset={this.handleReset} name={mode} className="tabPanel mt-5">
-        <Title  title={lang[mode].title} />
-        <SelectSeat mode={mode} seat={seat} activeNum={activeNum} handler={this.handler} />
+      <Form onSubmit={this.handleSubmit} onReset={this.handleReset} className="tabPanel mt-5">
+        <Title title={strings.title} />
+        <SelectSeat
+          seat={seat}
+          type={type}
+          roomNum={roomNum}
+          activeNum={activeNum}
+          handler={this.handler} />
         <FormGroup row className="mb-5">
           <Col md={{ size: 5, offset: 1 }}>
-            <Feedback lang={lang} type={type} name={name} handler={this.handler} />
-            <Info lang={lang} mode={mode} state={this.state} floor={parseInt(floor)} handler={this.handler} />
+            <Feedback strings={strings} type={type} name={name} handler={this.handler} />
+            <Info strings={strings} state={this.state} handler={this.handler} />
           </Col>
-          <Caution lang={lang[mode]} />
         </FormGroup>
+        <Caution strings={strings} />
       </Form>
     )
   }
 }
-
-class Reserve extends General {
-  static defaultProps = {
-    ...super.defaultProps,
-    mode: this.name.toLowerCase(),
-  }
-
-  constructor(props) {
-    super(props)
-    this.submit = reserve
-  }
-}
-
-class Modify extends General {
-  static defaultProps = {
-    ...super.defaultProps,
-    mode: this.name.toLowerCase(),
-  }
-
-  constructor(props) {
-    super(props)
-    this.submit = modify
-  }
-}
-
-class End extends General {
-  static defaultProps = {
-    ...super.defaultProps,
-    mode: this.name.toLowerCase(),
-  }
-
-  constructor(props) {
-    super(props)
-    this.submit = deleteDB
-  }
-}
-
-export { Reserve, Modify, End }

@@ -6,7 +6,7 @@ export default class Feedback extends Component {
   static propTypes = {
     type: PropTypes.string.isRequired,
     name: PropTypes.string.isRequired,
-    lang: PropTypes.object.isRequired,
+    strings: PropTypes.object.isRequired,
     handler: PropTypes.func.isRequired,
   }
 
@@ -39,7 +39,7 @@ export default class Feedback extends Component {
     const {
       info,
       feedback,
-    } = this.props.lang
+    } = this.props.strings
 
     const {
       type,

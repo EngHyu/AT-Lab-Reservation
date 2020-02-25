@@ -1,51 +1,43 @@
 import React, { Component } from 'react'
-import { Col, Button } from 'reactstrap'
-import { CancelOkBtn } from '../components'
+import { Row, Col, Button } from 'reactstrap'
 import PropTypes from 'prop-types'
 
+const color = ["primary", "success", "danger"]
+const type = ["reserve", "", "end"]
 export default class Caution extends Component {
   static propTypes = {
-    lang: PropTypes.exact({
+    strings: PropTypes.shape({
       title: PropTypes.string.isRequired,
       warning: PropTypes.string.isRequired,
       warningTexts: PropTypes.array.isRequired,
-      submit: PropTypes.oneOfType([
-        PropTypes.string,
-        PropTypes.exact({
-          "cancel": PropTypes.string.isRequired,
-          "modify": PropTypes.string.isRequired,
-        })
-      ]).isRequired
+      submit: PropTypes.exact({
+        "reserve": PropTypes.string.isRequired,
+        "end": PropTypes.string.isRequired,
+      }).isRequired
     })
   }
 
   render () {
     const {
-      // title,
       warning,
       warningTexts,
       submit,
-    } = this.props.lang
+    } = this.props.strings
 
     return (
-      <Col md={{ size: 5 }}>
-        <h4>{warning}</h4>
-        <ol>
-          {warningTexts.map(
-            (ele, idx) => <li key={idx}>{ele}</li>
-          )}
-        </ol>
-        {
-          typeof(submit) === "string" &&
-          <Button color='primary' block={true} >
-            {submit}
+      <Row noGutters={true}>
+        <Col md={{ size: 10, offset: 1 }}>
+          <h4>{warning}</h4>
+          <ol>
+            {warningTexts.map(
+              (ele, idx) => <li key={idx}>{ele}</li>
+            )}
+          </ol>
+          <Button color={color[0]} block={true} >
+            {submit[type[0]]}
           </Button>
-        }
-        {
-          typeof(submit) === "object" &&
-          <CancelOkBtn lang={submit} />
-        }
-      </Col>
+        </Col>
+      </Row>
     )
   }
 }

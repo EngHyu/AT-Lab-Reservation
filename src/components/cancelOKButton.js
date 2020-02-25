@@ -4,7 +4,7 @@ import { Col, FormGroup, Button, Input } from 'reactstrap'
 
 export default class CancelOkBtn extends Component {
   static propTypes = {
-    lang: PropTypes.exact({
+    strings: PropTypes.shape({
       cancel: PropTypes.string.isRequired,
       modify: PropTypes.string.isRequired,
     })
@@ -24,7 +24,7 @@ export default class CancelOkBtn extends Component {
     const {
       cancel,
       modify,
-    } = this.props.lang
+    } = this.props.strings
 
     const {
       action,

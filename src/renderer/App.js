@@ -8,8 +8,16 @@ export default class App extends Component {
   render() {
     return (
       <Router>
+        {/*
+        */} 
+        <Route path="/" component={User} />
+        {/*
+        */}
+        
+        {/*
         <Redirect from="/" to="/ko/4/user" />
         <Route path="/:lang/:floor/user" component={User} />
+        */}
         <Route path="/:lang/:floor/admin" component={Admin} />
       </Router>
     )

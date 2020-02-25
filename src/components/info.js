@@ -1,14 +1,17 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import { Row, /*FormGroup*/ } from 'reactstrap'
-import { StudentID, SeatID, SelectTime, Password } from '../components'
+import { StudentID, SeatID, SelectTime } from '../components'
+import { setting } from '../strings'
+
+const {
+  floor,
+} = setting
 
 export default class Info extends Component {
   static propTypes = {
-    lang: PropTypes.object.isRequired,
-    mode: PropTypes.string.isRequired,
+    strings: PropTypes.object.isRequired,
     state: PropTypes.object.isRequired,
-    floor: PropTypes.number.isRequired,
     handler: PropTypes.func.isRequired,
   }
 
@@ -30,9 +33,7 @@ export default class Info extends Component {
 
   render() {
     const {
-      lang,
-      mode,
-      floor,
+      strings,
       handler,
     } = this.props
 
@@ -45,14 +46,13 @@ export default class Info extends Component {
 
     return (
       <Row noGutters={true}>
-        <StudentID title={lang.studentID} mode={mode} handler={handler} />
-        <SeatID title={lang.seatNum} activeNum={activeNum} seatNum={seatNum} />
+        <StudentID title={strings.studentID} handler={handler} />
+        <SeatID strings={strings} activeNum={activeNum} seatNum={seatNum} />
         {
           floor === 5 &&
           <SelectTime type='start' value={startTime} /> &&
           <SelectTime type='end' value={endTime} />
         }
-        <Password title={lang.password} />
       </Row>
     )
   }

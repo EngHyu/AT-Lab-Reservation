@@ -1,5 +1,5 @@
 import sqlite from 'sqlite3'
-import crypto from 'crypto'
+// import crypto from 'crypto'
 import { scheduleJob } from 'node-schedule'
 
 scheduleJob('0 0 * * *', resetReservation)
@@ -20,7 +20,7 @@ export function initDB() {
       CREATE TABLE seat (
         roomNum INTEGER NOT NULL,
         seatNum INTEGER NOT NULL,
-        available BOOLEAN DEFAULT 1,
+        available INTEGER DEFAULT 0,
         PRIMARY KEY(roomNum, seatNum)
       )
     `)
@@ -31,7 +31,6 @@ export function initDB() {
         seatNum INTEGER NOT NULL,
         startTime TIME,
         endTime TIME,
-        password BLOB NOT NULL,
         CONSTRAINT user_fk FOREIGN KEY(studentID) REFERENCES user(studentID),
         CONSTRAINT seat_fk FOREIGN KEY(roomNum, seatNum) REFERENCES seat(roomNum, seatNum),
         UNIQUE(roomNum, seatNum)
@@ -146,12 +145,12 @@ export function initDB() {
     `)
 
     db.run(`
-      CREATE TRIGGER trackInsertReservation
+      CREATE TRIGGER insertReservation
         AFTER INSERT ON
         reservation
       BEGIN
         UPDATE user SET count=count+1 where studentID=NEW.studentID;
-        UPDATE seat SET available=0 where roomNum=NEW.roomNum AND seatNum=NEW.seatNum;
+        UPDATE seat SET available=1 where roomNum=NEW.roomNum AND seatNum=NEW.seatNum;
         INSERT INTO log(tableName, action, log)
         VALUES(
           'reservation',
@@ -163,12 +162,12 @@ export function initDB() {
       END;
     `)
     db.run(`
-      CREATE TRIGGER trackUpdateReservation
+      CREATE TRIGGER updateReservation
         AFTER UPDATE ON
         reservation
       BEGIN
-        UPDATE seat SET available=0 where roomNum=NEW.roomNum AND seatNum=NEW.seatNum;
-        UPDATE seat SET available=1 where roomNum=OLD.roomNum AND seatNum=OLD.seatNum;
+        UPDATE seat SET available=1 where roomNum=NEW.roomNum AND seatNum=NEW.seatNum;
+        UPDATE seat SET available=0 where roomNum=OLD.roomNum AND seatNum=OLD.seatNum;
         INSERT INTO log(tableName, action, log)
         VALUES(
           'reservation',
@@ -182,11 +181,11 @@ export function initDB() {
       END;
     `)
     db.run(`
-      CREATE TRIGGER trackDeleteReservation
+      CREATE TRIGGER deleteReservation
         AFTER DELETE ON
         reservation
       BEGIN
-        UPDATE seat SET available=1 where roomNum=OLD.roomNum AND seatNum=OLD.seatNum;
+        UPDATE seat SET available=0 where roomNum=OLD.roomNum AND seatNum=OLD.seatNum;
         INSERT INTO log(tableName, action, log)
         VALUES(
           'reservation',
@@ -259,7 +258,7 @@ export function getPattern(handler) {
   db.close()
 }
 
-export function reserve({ studentID, roomNum, seatNum, start, end, password }, handler) {
+export function reserve({ studentID, roomNum, seatNum, start, end }, handler) {
   const sqlite3 = sqlite.verbose()
   const db = new sqlite3.Database('db.db')
 
@@ -270,9 +269,9 @@ export function reserve({ studentID, roomNum, seatNum, start, end, password }, h
   
   db.run(`
     INSERT INTO reservation(
-      studentID, roomNum, seatNum, startTime, endTime, password
-    ) VALUES (?, ?, ?, ?, ?, ?)`,
-    [studentID, roomNum, seatNum, start, end, password],
+      studentID, roomNum, seatNum, startTime, endTime
+    ) VALUES (?, ?, ?, ?, ?)`,
+    [studentID, roomNum, seatNum, start, end],
     (err) => {
       const state = {
         type: 'invalid',
@@ -281,6 +280,7 @@ export function reserve({ studentID, roomNum, seatNum, start, end, password }, h
       if (!err) {
         state.type = 'valid'
         state.name = 'reserveSuccess'
+        getSeat(roomNum, handler)
       }
       
       else if (err.stack.match('studentID')) {
@@ -341,26 +341,25 @@ export function preprocess(form) {
       return acc
     }, {})
 
-  formData.password = encrypt(formData)
   return formData
 }
 
-function encrypt({ studentID, password }) {
-  const hash = crypto.createHmac('sha256', studentID)
-    .update(password)
-    .digest('hex')
-  return hash
-}
+// function encrypt({ studentID, password }) {
+//   const hash = crypto.createHmac('sha256', studentID)
+//     .update(password)
+//     .digest('hex')
+//   return hash
+// }
 
-function updateDB({ seatNum, start, end, studentID, password }, handler) {
+function updateDB({ seatNum, start, end, studentID }, handler) {
   const sqlite3 = sqlite.verbose()
   const db = new sqlite3.Database('db.db')
   db.run(`
       UPDATE reservation
       SET seatNum=(?), startTime=(?), endTime=(?)
-      WHERE studentID=(?) AND password=(?)
+      WHERE studentID=(?)
     `,
-    [seatNum, start, end, studentID, password],
+    [seatNum, start, end, studentID],
     function (err) {
       if (err)
         console.error(err.message)
@@ -383,14 +382,14 @@ function updateDB({ seatNum, start, end, studentID, password }, handler) {
   db.close()
 }
 
-export function deleteDB({ studentID, password }, handler, isCancel=false) {
+export function deleteDB({ studentID }, handler, isCancel=false) {
   const sqlite3 = sqlite.verbose()
   const db = new sqlite3.Database('db.db')
   db.run(`
       DELETE FROM reservation
-      WHERE studentID=(?) AND password=(?)
+      WHERE studentID=(?)
     `,
-    [studentID, password],
+    studentID,
     function (err) {
       if (err)
         console.error(err.message)
@@ -490,7 +489,6 @@ export function getTable(type, handler) {
 export function updateTable(type, newValue, row, col) {
   const row_copy = { ...row }
   delete row_copy.id
-  delete row_copy.password
   delete row_copy[col.dataField]
 
   let value = `${col.dataField}="${newValue}"`
@@ -500,12 +498,6 @@ export function updateTable(type, newValue, row, col) {
     console.error("you can't modify log")
   } else if (type === 'reservation') {
     // to change password
-    value += `, password="${
-      encrypt({
-        studentID: row.studentID.toString(),
-        password: '1111',
-      })
-    }"`
   } else {
     console.error("type error! type not found")
   }
