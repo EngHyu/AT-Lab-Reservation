@@ -1,9 +1,7 @@
-import React, { Component } from 'react'
 import PropTypes from 'prop-types'
-import { InputGroup, InputGroupAddon, Input, Button } from 'reactstrap'
-import { GoSearch } from 'react-icons/go'
-import { getPattern, getReservation } from '../db/db'
-import styles from './selectSeat.module.css'
+import React, { Component } from 'react'
+import { InputGroup, InputGroupAddon, Input } from 'reactstrap'
+import { getPattern } from 'common/db'
 
 export default class StudentID extends Component {
   static propTypes = {
@@ -47,7 +45,7 @@ export default class StudentID extends Component {
     } = this.state
 
     return (
-      <InputGroup size='lg' className={styles.studentID}>
+      <InputGroup size='lg'>
         <InputGroupAddon addonType='prepend'>
           {title}
         </InputGroupAddon>

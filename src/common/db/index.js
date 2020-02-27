@@ -1,12 +1,14 @@
+/* eslint-disable no-undef */
 import sqlite from 'sqlite3'
 // import crypto from 'crypto'
-import { scheduleJob } from 'node-schedule'
+// import { scheduleJob } from 'node-schedule'
 
-scheduleJob('0 0 * * *', resetReservation)
+// scheduleJob('0 0 * * *', resetReservation)
+const { dbPath } = require(__static)
 
 export function initDB() {
   const sqlite3 = sqlite.verbose()
-  const db = new sqlite3.Database('db.db')
+  const db = new sqlite3.Database(dbPath)
 
   db.serialize(() => {
     db.run(`
@@ -219,17 +221,17 @@ export function initDB() {
   db.close()
 }
 
-function resetReservation() {
-  const sqlite3 = sqlite.verbose()
-  const db = new sqlite3.Database('db.db')
-  db.get('DELETE FROM reservation;')
-  db.get('UPDATE user SET available=1;')
-  db.close()
-}
+// function resetReservation() {
+//   const sqlite3 = sqlite.verbose()
+//   const db = new sqlite3.Database(dbPath)
+//   db.get('DELETE FROM reservation;')
+//   db.get('UPDATE user SET available=1;')
+//   db.close()
+// }
 
 export function resetAllTable() {
   const sqlite3 = sqlite.verbose()
-  const db = new sqlite3.Database('db.db')
+  const db = new sqlite3.Database(dbPath)
   db.serialize(() => {
     db.get('DELETE FROM reservation;')
     db.get('UPDATE user SET count=0;')
@@ -239,7 +241,7 @@ export function resetAllTable() {
 
 export function getSeat(roomNum, handler) {
   const sqlite3 = sqlite.verbose()
-  const db = new sqlite3.Database('db.db')
+  const db = new sqlite3.Database(dbPath)
   db.all(`
     SELECT seatNum, type
     FROM   seat
@@ -251,7 +253,7 @@ export function getSeat(roomNum, handler) {
 
 export function getPattern(handler) {
   const sqlite3 = sqlite.verbose()
-  const db = new sqlite3.Database('db.db')
+  const db = new sqlite3.Database(dbPath)
   db.all('SELECT studentID FROM user;', (err, rows) => {
     rows = rows.map(row => row.studentID)
     rows = rows.join('|')
@@ -262,7 +264,7 @@ export function getPattern(handler) {
 
 export function reserve({ studentID, roomNum, seatNum, start, end }, handler) {
   const sqlite3 = sqlite.verbose()
-  const db = new sqlite3.Database('db.db')
+  const db = new sqlite3.Database(dbPath)
 
   if (start === undefined) {
     start = ""
@@ -306,7 +308,7 @@ export function reserve({ studentID, roomNum, seatNum, start, end }, handler) {
 
 export function getReservation(studentID, handler) {
   const sqlite3 = sqlite.verbose()
-  const db = new sqlite3.Database('db.db')
+  const db = new sqlite3.Database(dbPath)
   db.get(`
     SELECT studentID, roomNum, seatNum, startTime, endTime
     FROM   reservation
@@ -353,40 +355,40 @@ export function preprocess(form) {
 //   return hash
 // }
 
-function updateDB({ seatNum, start, end, studentID }, handler) {
-  const sqlite3 = sqlite.verbose()
-  const db = new sqlite3.Database('db.db')
-  db.run(`
-      UPDATE reservation
-      SET seatNum=(?), startTime=(?), endTime=(?)
-      WHERE studentID=(?);
-    `,
-    [seatNum, start, end, studentID],
-    function (err) {
-      if (err)
-        console.error(err.message)
+// function updateDB({ seatNum, start, end, studentID }, handler) {
+//   const sqlite3 = sqlite.verbose()
+//   const db = new sqlite3.Database(dbPath)
+//   db.run(`
+//       UPDATE reservation
+//       SET seatNum=(?), startTime=(?), endTime=(?)
+//       WHERE studentID=(?);
+//     `,
+//     [seatNum, start, end, studentID],
+//     function (err) {
+//       if (err)
+//         console.error(err.message)
 
-      else if (this.changes === 1) {
-        handler({
-          type: 'valid',
-          name: 'modifySuccess',
-        })
-      }
+//       else if (this.changes === 1) {
+//         handler({
+//           type: 'valid',
+//           name: 'modifySuccess',
+//         })
+//       }
 
-      else {
-        handler({
-          type: 'invalid',
-          name: 'verifyFailed',
-        })
-      }
-    }
-  )
-  db.close()
-}
+//       else {
+//         handler({
+//           type: 'invalid',
+//           name: 'verifyFailed',
+//         })
+//       }
+//     }
+//   )
+//   db.close()
+// }
 
 export function deleteDB(studentID, seatNum, roomNum, handler) {
   const sqlite3 = sqlite.verbose()
-  const db = new sqlite3.Database('db.db')
+  const db = new sqlite3.Database(dbPath)
   db.run(`
       DELETE FROM reservation
       WHERE studentID=(?) and seatNum=(?);
@@ -447,7 +449,7 @@ export function getTable(type, handler) {
   }
 
   const sqlite3 = sqlite.verbose()
-  const db = new sqlite3.Database('db.db')
+  const db = new sqlite3.Database(dbPath)
   db.all(
     query,
     (err, rows) => {
@@ -482,7 +484,7 @@ export function updateTable(type, newValue, row, col) {
   const query = `UPDATE ${type} SET ${value} WHERE ${where}`
 
   const sqlite3 = sqlite.verbose()
-  const db = new sqlite3.Database('db.db')
+  const db = new sqlite3.Database(dbPath)
   db.run(
     query,
     function (err) {

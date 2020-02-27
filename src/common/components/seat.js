@@ -1,49 +1,10 @@
-import React, { Component } from 'react'
+/* eslint-disable no-undef */
 import PropTypes from 'prop-types'
 import { Button } from 'reactstrap'
-import Popup from 'reactjs-popup'
-import { deleteDB } from '../db/db'
-import { Password } from '../components'
-import styles from './selectSeat.module.css'
+import React, { Component } from 'react'
 
-// class BasicSeat extends Component {
-//   static propTypes = {
-//     seat: PropTypes.exact({
-//       seatNum: PropTypes.number.isRequired,
-//       type: PropTypes.number.isRequired,
-//     }),
-//     activeNum: PropTypes.oneOfType([
-//       PropTypes.number,
-//       PropTypes.string,
-//     ]).isRequired,
-//     handler: PropTypes.func.isRequired,
-//   }
-
-//   render() {
-//     const {
-//       type,
-//       seatNum,
-//       activeNum,
-//     } = this.props
-
-//     return (
-//       <Button
-//       tag='label'
-//       block={true}
-//       className={styles.seat}
-//       color={color[type]}
-//       disabled={type===2}
-//       onClick={this.handleClick}
-//       active={seatNum === activeNum}>
-//         <Input
-//         type='radio'
-//         name='seatNum'
-//         value={seatNum} 
-//         required/>{seatNum}
-//       </Button>
-//     )
-//   }
-// }
+import { SelectSeatStyle } from 'common/css'
+import { EndUsePopup } from 'common/components'
 
 class BasicSeat extends Component {
   static propTypes = {
@@ -83,7 +44,7 @@ class BasicSeat extends Component {
       color={type}
       active={active}
       disabled={disabled}
-      className={styles.seat}
+      className={SelectSeatStyle.seat}
       onClick={this.handleClick}
       >
         {seatNum}
@@ -102,7 +63,7 @@ class PrimarySeat extends BasicSeat {
   }
 
   static defaultProps = {
-    type: this.name.replace('Seat', '').toLowerCase(),
+    type: "primary",
     disabled: false,
   }
 
@@ -135,78 +96,19 @@ class SuccessSeat extends BasicSeat {
   }
 
   static defaultProps = {
-    type: this.name.replace('Seat', '').toLowerCase(),
+    type: "success",
     active: false,
     disabled: false,
   }
 
-  handleKeyPress = (event, close) => {
-    if (event.key !== "Enter") {
-      this.setState({
-        studentID: event.target.value + event.key,
-      })
-      return
-    }
-
-    const {
-      seatNum,
-      roomNum,
-      handler,
-    } = this.props
-    const studentID = event.target.value
-
-    deleteDB(studentID, seatNum, roomNum, handler)
-    event.preventDefault()
-    close()
-  }
-
-  handleClick = (event, close) => {
-    const {
-      seatNum,
-      roomNum,
-      handler,
-    } = this.props
-
-    const {
-      studentID,
-    } = this.state
-    
-    deleteDB(studentID, seatNum, roomNum, handler)
-    event.preventDefault()
-    close()
-  }
-
   render() {
-    return (
-      <Popup trigger={super.render()} modal>
-        {close => (
-          <div className={styles.modal}>
-            <a className={styles.close} onClick={close}>&times;</a>
-            <div className={styles.header}>이용 종료</div>
-            <div className={styles.content}>
-              <span>언제든 재이용 할 수 있습니다.</span>
-              <Password
-                placeholder="이용자 학번을 입력하세요."
-                onKeyPress={(event) => this.handleKeyPress(event, close)} />
-            </div>
-            <div className={styles.actions}>
-              <Button
-                block={true}
-                color='danger'
-                onClick={(event) => this.handleClick(event, close)}>
-                좌석 이용을 종료합니다.
-              </Button>
-            </div>
-          </div>
-        )}
-      </Popup>
-    )
+    return <EndUsePopup trigger={super.render()} props={this.props} />
   }
 }
 
 class DangerSeat extends BasicSeat {
   static defaultProps = {
-    type: this.name.replace('Seat', '').toLowerCase(),
+    type: "danger",
     active: false,
     disabled: true,
   }

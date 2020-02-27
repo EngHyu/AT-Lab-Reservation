@@ -1,5 +1,28 @@
-{
+const settings = {
   "floor": 4,
+  "dbPath": "db.db",
+  "lang": [
+    "ko",
+    "en"
+  ],
+  "cssName": [
+    "popup",
+    "feedback",
+    "selectSeat"
+  ],
+  "moduleName": [
+    "info",
+    "seat",
+    "title",
+    "seatID",
+    "caution",
+    "feedback",
+    "password",
+    "studentID",
+    "navigation",
+    "selectSeat",
+    "endUsePopup"
+  ],
   "columnFields": {
     "user": [
       {
@@ -68,4 +91,9 @@
       }
     ]
   }
+}
+
+module.exports = {}
+for (const [k, v] of Object.entries(settings)) {
+  module.exports[k] = v
 }

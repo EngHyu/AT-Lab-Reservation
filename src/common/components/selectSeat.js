@@ -2,9 +2,9 @@ import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import { FormGroup, Col, Row, Button, Input } from 'reactstrap'
 
-import { getSeat } from '../db/db'
-import styles from './selectSeat.module.css'
-import { Seat } from '../components'
+import { getSeat } from 'common/db'
+import { Seat } from 'common/components'
+import { SelectSeatStyle } from 'common/css'
 
 export default class SelectSeat extends Component {
   static propTypes = {
@@ -52,11 +52,11 @@ export default class SelectSeat extends Component {
         <Col md={{ size: 10, offset: 1 }}>
           <Input type='hidden' name='roomNum' value={roomNum} />
           <Row className='pb-3' noGutters={true}>
-            <Button outline={true} block={true} className={styles.seat} tag='label' disabled>Screen Side</Button>
+            <Button outline={true} block={true} className={SelectSeatStyle.seat} tag='label' disabled>Screen Side</Button>
           </Row>
-          <Row className={styles.row}>
+          <Row className={SelectSeatStyle.row}>
             {[...Array(8).keys()].map(num =>
-              <Col className={`btn-group-toggle ${styles.col}`} key={num}>
+              <Col className={`btn-group-toggle ${SelectSeatStyle.col}`} key={num}>
                 {[...Array(6).keys()].map(ele => {
                     const id = num * 6 + ele
                     return (

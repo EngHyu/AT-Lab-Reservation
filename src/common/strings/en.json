@@ -1,0 +1,57 @@
+{
+  "id": "#",
+  "log": "log",
+  "name": "name",
+  "created": "time",
+  "tableName": "table",
+  "action": "action",
+  "count": "count",
+  "user": "user ranking",
+  "exportCSV": "export CSV",
+  "reservation": "reservations",
+  "passwordReset": "* initial password is 1111",
+
+  "info": "information",
+  "studentID": "st. ID",
+  "roomNum": "room no.",
+  "seatNum": "seat no.",
+  "seatNumPlaceholder": "click button to select seat.",
+  "startTime": "start",
+  "endTime": "end",
+
+  "title": "Seat Reservation System",
+  "warning": "read this before you reserve...",
+  "warningTexts": [
+    "if you forgot tempral password, there's no way to do these",
+    "X513 opens from 09:00 am to 23:00 pm",
+    "classroom opens 24 hour during exam weeks (will be noticed)"
+  ],
+  "submit": {
+    "reserve": "I agree and reserve seat",
+    "end": "End use"
+  },
+
+  "feedback": {
+    "idle": {
+      "idle": ""
+    },
+    "valid": {
+      "reserveSuccess": "* success to reserve.",
+      "selectSuccess": "* success to load info",
+      "modifySuccess": "* success to modify.",
+      "deleteSuccess": "* success to cancel."
+    },
+    "invalid": {
+      "reserveFailedStudentID": "* you already reserved.",
+      "reserveFailed_seatNum": "* seat is already reserved.",
+      "selectFailed": "* failed to load info.",
+      "verifyFailed": "* different password."
+    }
+  },
+
+  "help": {
+    "primary": "These seats can be used.",
+    "success": "These seats are in use, only user can modify status.",
+    "danger": "These seats are not available."
+  }
+}
