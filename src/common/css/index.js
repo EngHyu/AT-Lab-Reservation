@@ -1,11 +1,9 @@
-/* eslint-disable no-undef */
-module.exports = {}
-const { cssName } = require(__static)
-const capitalize = (str) => str.charAt(0).toUpperCase() + str.slice(1)
-const makeName = (name) => `${capitalize(name)}Style`
+import * as PopupStyle from "./popup.module.css"
+import * as FeedbackStyle from "./feedback.module.css"
+import * as SelectSeatStyle from "./selectSeat.module.css"
 
-cssName.forEach(css => {
-  const m = require(`./${css}.module.css`)
-  const name = makeName(css)
-  module.exports[name] = m
-})
+export {
+  PopupStyle,
+  FeedbackStyle,
+  SelectSeatStyle,
+}

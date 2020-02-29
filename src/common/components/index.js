@@ -1,18 +1,40 @@
-/* eslint-disable no-undef */
-module.exports = {}
-const { moduleName } = require(__static)
+// 각각의 파일에서 export한 모든 클래스 import한 다음 export 해줍니다.
+/*
+Before:
+import Info from "common/components/info"
+import Seat from "common/components/seat"
+*/
 
-const capitalize = (str) => str.charAt(0).toUpperCase() + str.slice(1)
-const makeModule = (name, module=[]) => ({
-  name: name,
-  module: module,
-})
+/*
+After:
+import { Info, Seat } from "common/components"
+*/
+import Info from "./info"
+import Seat from "./seat"
+import Title from "./title"
+import SeatID from "./seatID"
+import Caution from "./caution"
+import Feedback from "./feedback"
+import Password from "./password"
+import StudentID from "./studentID"
+import Navigation from "./navigation"
+import SelectSeat from "./selectSeat"
+import EndUsePopup from "./endUsePopup"
+import { list, strings } from "./loadStrings"
 
-const files = moduleName.map(m => makeModule(m))
-for (const file of files) {
-  const m = require(`./${file.name}`)
-  module.exports[capitalize(file.name)] = m.default
-  for (const c of file.module) {
-    module.exports[c] = m[c]
-  }
+export {
+  Info,
+  Seat,
+  Title,
+  SeatID,
+  Caution,
+  Feedback,
+  Password,
+  StudentID,
+  Navigation,
+  SelectSeat,
+  EndUsePopup,
+
+  list,
+  strings,
 }

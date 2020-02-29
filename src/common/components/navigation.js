@@ -1,7 +1,8 @@
+/* eslint-disable no-undef */
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import { Nav, NavLink } from 'reactstrap'
-import * as strings from 'common/strings'
+import { list } from 'common/components'
 
 export default class Navigation extends Component {
   static propTypes = {
@@ -21,7 +22,7 @@ export default class Navigation extends Component {
   render () {
     return (
       <Nav>
-        {Object.keys(strings).map((ele, idx) => (
+        {list.map((ele, idx) => (
           <NavLink href="#" key={idx} onClick={this.handleClick}>
             {ele}
           </NavLink>

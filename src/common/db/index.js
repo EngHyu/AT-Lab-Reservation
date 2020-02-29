@@ -1,10 +1,6 @@
 /* eslint-disable no-undef */
 import sqlite from 'sqlite3'
-// import crypto from 'crypto'
-// import { scheduleJob } from 'node-schedule'
-
-// scheduleJob('0 0 * * *', resetReservation)
-const { dbPath } = require(__static)
+const dbPath = [__static, 'db.db'].join('/')
 
 export function initDB() {
   const sqlite3 = sqlite.verbose()
@@ -254,6 +250,7 @@ export function getSeat(roomNum, handler) {
 export function getPattern(handler) {
   const sqlite3 = sqlite.verbose()
   const db = new sqlite3.Database(dbPath)
+  
   db.all('SELECT studentID FROM user;', (err, rows) => {
     rows = rows.map(row => row.studentID)
     rows = rows.join('|')
@@ -347,44 +344,6 @@ export function preprocess(form) {
 
   return formData
 }
-
-// function encrypt({ studentID, password }) {
-//   const hash = crypto.createHmac('sha256', studentID)
-//     .update(password)
-//     .digest('hex')
-//   return hash
-// }
-
-// function updateDB({ seatNum, start, end, studentID }, handler) {
-//   const sqlite3 = sqlite.verbose()
-//   const db = new sqlite3.Database(dbPath)
-//   db.run(`
-//       UPDATE reservation
-//       SET seatNum=(?), startTime=(?), endTime=(?)
-//       WHERE studentID=(?);
-//     `,
-//     [seatNum, start, end, studentID],
-//     function (err) {
-//       if (err)
-//         console.error(err.message)
-
-//       else if (this.changes === 1) {
-//         handler({
-//           type: 'valid',
-//           name: 'modifySuccess',
-//         })
-//       }
-
-//       else {
-//         handler({
-//           type: 'invalid',
-//           name: 'verifyFailed',
-//         })
-//       }
-//     }
-//   )
-//   db.close()
-// }
 
 export function deleteDB(studentID, seatNum, roomNum, handler) {
   const sqlite3 = sqlite.verbose()

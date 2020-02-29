@@ -2,9 +2,8 @@ import React, { Component } from 'react'
 import { Form, FormGroup, Col } from 'reactstrap'
 
 import './App.global.css'
-import * as strings from 'common/strings'
 import { preprocess, reserve } from 'common/db'
-import { Navigation, Title, SelectSeat, Feedback, Info, Caution } from 'common/components'
+import { strings, Navigation, Title, SelectSeat, Feedback, Info, Caution } from 'common/components'
 
 export default class App extends Component {
   state = {

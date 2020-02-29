@@ -1,10 +1,10 @@
-/* eslint-disable no-undef */
+/*eslint-disable no-undef*/
 import PropTypes from 'prop-types'
 import { Button } from 'reactstrap'
 import React, { Component } from 'react'
 
-import { SelectSeatStyle } from 'common/css'
 import { EndUsePopup } from 'common/components'
+import { SelectSeatStyle } from 'common/css'
 
 class BasicSeat extends Component {
   static propTypes = {
