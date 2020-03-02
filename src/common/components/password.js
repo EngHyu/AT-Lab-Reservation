@@ -52,6 +52,7 @@ export default class Password extends Component {
         name='password'
         onKeyPress={onKeyPress}
         placeholder={placeholder}
+        autoFocus
         required />
         <InputGroupAddon addonType='append'>
           <ButtonToggle outline={true} onClick={this.handleClick} active={isShow}>

@@ -6,21 +6,24 @@ import { getSeat } from 'common/db'
 import { Seat } from 'common/components'
 import { SelectSeatStyle } from 'common/css'
 
+// db에서 좌석을 가져옵니다.
+// props로 받아온 좌석 정보를 바탕으로 <Seat /> 버튼을 만듭니다.
+// 버튼을 눌러 좌석을 선택할 수 있습니다.
 export default class SelectSeat extends Component {
   static propTypes = {
     strings: PropTypes.object.isRequired,
     roomNum: PropTypes.number.isRequired,
-    type: PropTypes.string.isRequired,
     seat: PropTypes.arrayOf(
       PropTypes.exact({
         seatNum: PropTypes.number,
-        type: PropTypes.number.isRequired,
+        type: PropTypes.number,
+        info: PropTypes.string,
       })
     ).isRequired,
-    activeNum: PropTypes.oneOfType([
-      PropTypes.number,
-      PropTypes.string,
-    ]).isRequired,
+    activeSeat: PropTypes.shape({
+      seatNum: PropTypes.number,
+      info: PropTypes.string,
+    }),
     handler: PropTypes.func.isRequired,
   }
 
@@ -43,7 +46,7 @@ export default class SelectSeat extends Component {
       seat,
       roomNum,
       strings,
-      activeNum,
+      activeSeat,
       handler,
     } = this.props
 
@@ -65,7 +68,7 @@ export default class SelectSeat extends Component {
                         seat={seat[id]}
                         strings={strings}
                         roomNum={roomNum}
-                        activeNum={activeNum}
+                        activeSeat={activeSeat}
                         handler={handler} />
                     )
                   }

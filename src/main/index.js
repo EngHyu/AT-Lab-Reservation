@@ -10,6 +10,9 @@ const isDevelopment = process.env.NODE_ENV !== 'production'
 let mainWindow
 
 function createMainWindow() {
+  // 화면 세팅
+  // 개발 모드일 때는 크기 조절 가능, 이동 가능, 최소화 가능, 풀스크린 불가능
+  // 배포 모드일 때는 크기 조절 불가능, 이동 불가능, 최소화 불가능, 풀스크린 가능
   const window = new BrowserWindow({
     webPreferences: {
       nodeIntegration: true,
@@ -20,13 +23,18 @@ function createMainWindow() {
     fullscreen: !isDevelopment,
   })
 
+  // 개발용 모니터에 띄우기 편하게 작성한 코드
+  // 편하실대로 변경하셔도 됩니다.
   if (isDevelopment) {
-    window.webContents.openDevTools()
     window.setPosition(2200, 0)
     window.setSize(1000, 1058)
   }
 
+  // 개발 환경일때만
+  // 앱 실행 시 개발자 도구 열기
+  // 로컬 서버를 통해 화면 표시
   if (isDevelopment) {
+    window.webContents.openDevTools()
     window.loadURL(`http://localhost:${process.env.ELECTRON_WEBPACK_WDS_PORT}`)
   }
   else {

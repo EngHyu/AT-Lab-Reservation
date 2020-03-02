@@ -2,59 +2,33 @@ import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import { InputGroup, InputGroupAddon, Input } from 'reactstrap'
 
+// SeatID는 activeNum을 받아 input에 표시합니다.
+// 이외의 방법으로는 input을 수정할 수 없습니다.
 export default class SeatID extends Component {
   static propTypes = {
     strings: PropTypes.shape({
-      seatNum: PropTypes.string.isRequired,
-      seatNumPlaceholder: PropTypes.string.isRequired,
+      title: PropTypes.string.isRequired,
+      placeholder: PropTypes.string.isRequired,
     }).isRequired,
-    activeNum: PropTypes.oneOfType([
-      PropTypes.number,
-      PropTypes.string,
-    ]).isRequired,
-  }
-  
-  state = {
-    seatID: ''
-  }
-
-  componentDidUpdate(prevProps) {
-    const update = (key) => {
-      if (this.props[key] !== prevProps[key]) {
-        this.setState({
-          seatID: this.props[key]
-        })
-      }  
-    }
-    update("seatNum")
-    update("activeNum")
-  }
-
-  handleChange = (event) => {
-    const target = event.target
-    const value = target.type === 'checkbox' ? target.checked : target.value
-    const name = target.name
-    this.setState({
-        [name]: value
-    })
+    activeNum: PropTypes.number.isRequired,
   }
 
   render() {
     const {
-      seatNum,
-      seatNumPlaceholder,
+      activeNum,
+    } = this.props
+
+    const {
+      title,
+      placeholder,
     } = this.props.strings
     
-    const {
-      seatID
-    } = this.state
-
     return (
       <InputGroup size='lg'>
         <InputGroupAddon addonType='prepend'>
-          {seatNum}
+          {title}
         </InputGroupAddon>
-        <Input name='seatNum' value={seatID} onChange={this.handleChange} placeholder={seatNumPlaceholder} required />
+        <Input name='seatNum' value={activeNum > 0 ? activeNum : ''} placeholder={placeholder} readOnly required />
       </InputGroup>
     )
   }

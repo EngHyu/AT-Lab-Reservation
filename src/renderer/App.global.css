@@ -1,6 +1,7 @@
-/* bootstrap에 대한 전반적인 수정 */
+/* bootstrap import */
 @import '~bootstrap/dist/css/bootstrap.min.css';
 
+/* bootstrap에 대한 전반적인 수정 */
 .input-group {
   margin-bottom: -1px;
 }
@@ -19,20 +20,6 @@
   margin-bottom: 8px !important;
 }
 
-/* admin.module.css로 들어가야 할 것들 */
-caption {
-  caption-side: top !important;
-}
-
-.table-function, .title {
-  display: flex;
-  justify-content: space-between;
-}
-
-.table-function > div {
-  display: flex;
-}
-
-.table-function button {
-  height: 38px;
+.form-control[readonly] {
+  background-color: initial;
 }

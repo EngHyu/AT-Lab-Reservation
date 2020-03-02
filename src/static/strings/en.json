@@ -1,52 +1,63 @@
 {
-  "id": "#",
-  "log": "log",
-  "name": "name",
-  "created": "time",
-  "tableName": "table",
-  "action": "action",
-  "count": "count",
-  "user": "user ranking",
-  "exportCSV": "export CSV",
-  "reservation": "reservations",
-  "passwordReset": "* initial password is 1111",
+  "app": {
+    "title": "Seat Reservation System"
+  },
 
-  "info": "information",
-  "studentID": "st. ID",
+  "info": {
+    "title": "Informatino",
+    "studentID": {
+      "title": "St. ID",
+      "alert": "No student matches!"
+    },
+    "seatID": {
+      "title": "Seat No.",
+      "placeholder": "Click to select seat num."
+    },
+    "feedback": {
+      "idle": {
+        "idle": ""
+      },
+      "valid": {
+        "reserveSuccess": "* success to reserve.",
+        "selectSuccess": "* success to load info",
+        "modifySuccess": "* success to modify.",
+        "deleteSuccess": "* success to cancel."
+      },
+      "invalid": {
+        "reserveFailedStudentID": "* you already reserved.",
+        "reserveFailed_seatNum": "* seat is already reserved.",
+        "selectFailed": "* failed to load info.",
+        "verifyFailed": "* different password."
+      }
+    }
+  },
+
+  "device": {
+    "title": "Device Info",
+    "noInfo": "No information exists."
+  },
+  
   "roomNum": "room no.",
-  "seatNum": "seat no.",
-  "seatNumPlaceholder": "click button to select seat.",
   "startTime": "start",
   "endTime": "end",
 
-  "title": "Seat Reservation System",
-  "warning": "read this before you reserve...",
-  "warningTexts": [
-    "if you forgot tempral password, there's no way to do these",
-    "X513 opens from 09:00 am to 23:00 pm",
-    "classroom opens 24 hour during exam weeks (will be noticed)"
-  ],
-  "submit": {
-    "reserve": "I agree and reserve seat",
-    "end": "End use"
+  "caution": {
+    "title": "Caution! Read before reserve.",
+    "texts": [
+      "여기 줄이기",
+      "본 실습실은 A&T 주전공, 복수전공인 학생만 사용 가능합니다.",
+      "타인의 학번으로 예약할 경우, 향후 사용에 제한이 있을 수 있습니다.",
+      "본 공간은 보안을 위해 CCTV 촬영를 중에 있습니다.",
+      "09:00 ~ 23:00"
+    ],
+    "submit": "I agree and reserve seat."
   },
 
-  "feedback": {
-    "idle": {
-      "idle": ""
-    },
-    "valid": {
-      "reserveSuccess": "* success to reserve.",
-      "selectSuccess": "* success to load info",
-      "modifySuccess": "* success to modify.",
-      "deleteSuccess": "* success to cancel."
-    },
-    "invalid": {
-      "reserveFailedStudentID": "* you already reserved.",
-      "reserveFailed_seatNum": "* seat is already reserved.",
-      "selectFailed": "* failed to load info.",
-      "verifyFailed": "* different password."
-    }
+  "endUse": {
+    "title": "End Usage",
+    "text": "You can reserve seat again whenever you want.",
+    "placeholder": "Input st. ID when you reserved.",
+    "submit": "End my usage."
   },
 
   "help": {

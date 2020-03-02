@@ -2,27 +2,53 @@
 import sqlite from 'sqlite3'
 const dbPath = [__static, 'db.db'].join('/')
 
+// 테스트 용도로 사용하거나, 초기 db 만들 때 사용합니다.
 export function initDB() {
   const sqlite3 = sqlite.verbose()
   const db = new sqlite3.Database(dbPath)
 
   db.serialize(() => {
+    /*
+    studentID: 학번
+    name: 이름
+    count: 예약 횟수 (다음 학기 고정 좌석 배치 시 사용)
+    available: 하루에 여러 번 예약해도 카운트는 1만 오르도록. 매일 1로 초기화
+    이름이 공백인지 확인합니다.
+    */
     db.run(`
       CREATE TABLE user (
         studentID INTEGER PRIMARY KEY,
         name TEXT NOT NULL,
         count INTEGER DEFAULT 0,
         available BOOL DEFAULT 1
+        CHECK(name <> '')
       );
     `)
+    /*
+    roomNum: 실습실 번호
+    seatNum: 좌석 번호
+    type: 좌석 상태 (0: 예약 가능, 1: 예약 중, 2: 고장)
+    info: 기기 사양
+    */
     db.run(`
       CREATE TABLE seat (
         roomNum INTEGER NOT NULL,
         seatNum INTEGER NOT NULL,
         type INTEGER DEFAULT 0,
+        info TEXT DEFAULT '',
         PRIMARY KEY(roomNum, seatNum)
       );
     `)
+    /*
+    studentID: 학번
+    roomNum: 실습실 번호
+    seatNum: 좌석 번호
+    startTime: 시작 시간
+    endTime: 종료 시간
+    studentID와 seatNum, roomNum이 외래키임을 표시
+    roomNum & seatNum이 유일해야 합니다.
+    좌석 번호가 공백인지 확인합니다.
+    */
     db.run(`
       CREATE TABLE reservation(
         studentID INTEGER PRIMARY KEY,
@@ -32,9 +58,17 @@ export function initDB() {
         endTime TIME,
         CONSTRAINT user_fk FOREIGN KEY(studentID) REFERENCES user(studentID),
         CONSTRAINT seat_fk FOREIGN KEY(roomNum, seatNum) REFERENCES seat(roomNum, seatNum),
-        UNIQUE(roomNum, seatNum)
+        UNIQUE(roomNum, seatNum),
+        CHECK(seatNum <> '')
       );
     `)
+    /*
+    id: 실행 번호 (몇 번째로 실행된 명령인지)
+    created: 실행 시점
+    tableName: 조작된 테이블 이름
+    action: 행동
+    log: 구체적인 내용
+    */
     db.run(`
       CREATE TABLE log (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -44,7 +78,9 @@ export function initDB() {
         log TEXT NOT NULL
       );
     `)
-
+    /*
+    사용자가 추가될 때 로그가 자동으로 추가됩니다.
+    */
     db.run(`
       CREATE TRIGGER insertUser
         AFTER INSERT ON
@@ -60,6 +96,9 @@ export function initDB() {
         );
       END;
     `)
+    /*
+    사용자가 수정될 때 로그가 자동으로 추가됩니다.
+    */
     db.run(`
       CREATE TRIGGER updateUser
         AFTER UPDATE ON
@@ -78,6 +117,9 @@ export function initDB() {
         );
       END;
     `)
+    /*
+    사용자가 삭제될 때 로그가 자동으로 추가됩니다.
+    */
     db.run(`
       CREATE TRIGGER deleteUser
         AFTER DELETE ON
@@ -93,7 +135,9 @@ export function initDB() {
         );
       END;
     `)
-
+    /*
+    좌석이 추가될 때 로그가 자동으로 추가됩니다.
+    */
     db.run(`
       CREATE TRIGGER insertSeat
         AFTER INSERT ON
@@ -109,6 +153,9 @@ export function initDB() {
         );
       END;
     `)
+    /*
+    좌석이 수정될 때 로그가 자동으로 추가됩니다.
+    */
     db.run(`
       CREATE TRIGGER updateSeat
         AFTER UPDATE ON
@@ -127,6 +174,9 @@ export function initDB() {
         );
       END;
     `)
+    /*
+    좌석이 삭제될 때 로그가 자동으로 추가됩니다.
+    */
     db.run(`
       CREATE TRIGGER deleteSeat
         AFTER DELETE ON
@@ -142,7 +192,12 @@ export function initDB() {
         );
       END;
     `)
-
+    /*
+    예약 정보가 추가될 때
+    사용자 예약 횟수가 가능한 만큼(available 값만큼) 오르고, available을 0으로 설정합니다.
+    좌석 타입을 1(=reserved)로 바꿉니다.
+    로그가 자동으로 추가됩니다.
+    */
     db.run(`
       CREATE TRIGGER insertReservation
         AFTER INSERT ON
@@ -160,6 +215,12 @@ export function initDB() {
         );
       END;
     `)
+    /*
+    예약 정보가 수정될 때 (현재는 사용되지 않습니다.)
+    새 좌석을 reserved로 바꿉니다.
+    이전 좌석을 reservable로 바꿉니다.
+    로그가 자동으로 추가됩니다.
+    */
     db.run(`
       CREATE TRIGGER updateReservation
         AFTER UPDATE ON
@@ -179,6 +240,11 @@ export function initDB() {
         );
       END;
     `)
+    /*
+    예약 정보가 삭제될 때
+    좌석을 reservable로 바꿉니다.
+    로그를 추가합니다.
+    */
     db.run(`
       CREATE TRIGGER deleteReservation
         AFTER DELETE ON
@@ -195,8 +261,16 @@ export function initDB() {
         );
       END;
     `)
+  })
+  db.close()
+}
 
-    // insert dummy data
+// 초기 더미 데이터 (테스트 용)
+export function insertDummyData() {
+  const sqlite3 = sqlite.verbose()
+  const db = new sqlite3.Database(dbPath)
+
+  db.serialize(() => {
     for (let i=0; i<=1000; i++) {
       db.run(`
         INSERT INTO user(
@@ -216,7 +290,8 @@ export function initDB() {
   })
   db.close()
 }
-
+// 하루 주기로 예약 내역을 리셋할 때 사용합니다.
+// 프로그램이 꺼져 있을 경우 실행되지 않기 때문에 관련 내용은 윈도우 스케쥴러로 이동했습니다.
 // function resetReservation() {
 //   const sqlite3 = sqlite.verbose()
 //   const db = new sqlite3.Database(dbPath)
@@ -225,21 +300,24 @@ export function initDB() {
 //   db.close()
 // }
 
+// 매 학기마다 사용자가 예약한 횟수를 리셋하는 용도입니다.
 export function resetAllTable() {
   const sqlite3 = sqlite.verbose()
   const db = new sqlite3.Database(dbPath)
   db.serialize(() => {
     db.get('DELETE FROM reservation;')
     db.get('UPDATE user SET count=0;')
+    db.get('UPDATE user SET available=1;')
   })
   db.close()
 }
 
+// roomNum에 해당하는 방 좌석 배치를 가져옵니다.
 export function getSeat(roomNum, handler) {
   const sqlite3 = sqlite.verbose()
   const db = new sqlite3.Database(dbPath)
   db.all(`
-    SELECT seatNum, type
+    SELECT seatNum, type, info
     FROM   seat
     WHERE  roomNum=(?);`,
     [roomNum],
@@ -247,6 +325,7 @@ export function getSeat(roomNum, handler) {
   )
 }
 
+// 학생 목록을 가져옵니다. studentID에서 pattern으로 사용됩니다.
 export function getPattern(handler) {
   const sqlite3 = sqlite.verbose()
   const db = new sqlite3.Database(dbPath)
@@ -259,6 +338,8 @@ export function getPattern(handler) {
   db.close()
 }
 
+// 해당 학생이 해당 좌석을 예약합니다.
+// SelectSeat에서 사용합니다.
 export function reserve({ studentID, roomNum, seatNum, start, end }, handler) {
   const sqlite3 = sqlite.verbose()
   const db = new sqlite3.Database(dbPath)
@@ -275,21 +356,25 @@ export function reserve({ studentID, roomNum, seatNum, start, end }, handler) {
     [studentID, roomNum, seatNum, start, end],
     (err) => {
       const state = {
-        type: 'invalid',
+        infoFeedback: {
+          type: 'invalid',
+        }
       }
 
       if (!err) {
-        state.type = 'valid'
-        state.name = 'reserveSuccess'
+        state.infoFeedback = {
+          type: 'valid',
+          name: 'reserveSuccess',
+        }
         getSeat(roomNum, handler)
       }
       
       else if (err.stack.match('studentID')) {
-        state.name = 'reserveFailedStudentID'
+        state.infoFeedback.name = 'reserveFailedStudentID'
       }
 
       else if (err.stack.match('seatNum')) {
-        state.name = 'reserveFailedSeatNum'
+        state.infoFeedback.name = 'reserveFailedSeatNum'
       }
 
       else {
@@ -303,6 +388,8 @@ export function reserve({ studentID, roomNum, seatNum, start, end }, handler) {
   db.close()
 }
 
+// 학생 이름으로 예약 내역을 검색하는 코드입니다.
+// 현재 사용하지 않습니다. (학번을 통해 좌석 예약을 해제하기 때문)
 export function getReservation(studentID, handler) {
   const sqlite3 = sqlite.verbose()
   const db = new sqlite3.Database(dbPath)
@@ -319,13 +406,17 @@ export function getReservation(studentID, handler) {
           seatNum: '',
           startTime: '',
           endTime: '',
-          type: 'invalid',
-          name: 'selectFailed',
+          infoFeedback: {
+            type: 'invalid',
+            name: 'selectFailed',
+          }
         }
       }
       else {
-        row.type = 'valid'
-        row.name = 'selectSuccess'
+        row.infoFeedback = {
+          type: 'valid',
+          name: 'selectSuccess',
+        }
       }
       handler(row)
     }
@@ -333,6 +424,7 @@ export function getReservation(studentID, handler) {
   db.close()
 }
 
+// formData를 사용하기 쉽게 JSON 형태로 바꿉니다.
 export function preprocess(form) {
   const formData = Object.values(form)
     .reduce((acc, ele) => {
@@ -345,6 +437,8 @@ export function preprocess(form) {
   return formData
 }
 
+// db에서 예약 정보를 삭제합니다.
+// endUsePopup에서 사용합니다.
 export function deleteDB(studentID, seatNum, roomNum, handler) {
   const sqlite3 = sqlite.verbose()
   const db = new sqlite3.Database(dbPath)
@@ -360,95 +454,21 @@ export function deleteDB(studentID, seatNum, roomNum, handler) {
       else if (this.changes === 1) {
         getSeat(roomNum, handler)
         handler({
-          type: 'valid',
-          name: 'deleteSuccess',
+          infoFeedback: {
+            type: 'valid',
+            name: 'deleteSuccess',
+          }
         })
       }
 
       else {
         handler({
-          type: 'invalid',
-          name: 'verifyFailed',
+          infoFeedback: {
+            type: 'invalid',
+            name: 'verifyFailed',
+          }
         })
       }
-    }
-  )
-  db.close()
-}
-
-export function getTable(type, handler) {
-  let query = `SELECT * FROM ${type}`
-  let order
-
-  if (type === 'user') {
-    query += " ORDER BY count DESC"
-    order = (rows) => rows.map(
-      (row, idx, arr) => {
-        if (idx === 0)
-          row.id = 1
-        else if (arr[idx-1].count === row.count)
-          row.id = arr[idx-1].id
-        else
-          row.id = arr[idx-1].id + 1
-        return row
-      }
-    )
-  } else if (type === 'log') {
-    query += " ORDER BY id DESC"
-    order = (rows) => rows
-  } else if (type === 'reservation') {
-    order = (rows) => rows.map(
-      (row, id)=>({
-        id: 1+id,
-        ...row,
-      })
-    )
-  } else {
-    console.error("type error! type not found")
-  }
-
-  const sqlite3 = sqlite.verbose()
-  const db = new sqlite3.Database(dbPath)
-  db.all(
-    query,
-    (err, rows) => {
-      if (err)
-        console.error(err)
-      
-      handler({
-        data: order(rows)
-      })
-    }
-  )
-  db.close()
-}
-
-export function updateTable(type, newValue, row, col) {
-  const row_copy = { ...row }
-  delete row_copy.id
-  delete row_copy[col.dataField]
-
-  let value = `${col.dataField}="${newValue}"`
-  if (type === 'user') {
-    //
-  } else if (type === 'log') {
-    console.error("you can't modify log")
-  } else if (type === 'reservation') {
-    // to change password
-  } else {
-    console.error("type error! type not found")
-  }
-
-  const where = Object.entries(row_copy).map(ele => `${ele[0]}="${ele[1]}"`).join(' and ')
-  const query = `UPDATE ${type} SET ${value} WHERE ${where}`
-
-  const sqlite3 = sqlite.verbose()
-  const db = new sqlite3.Database(dbPath)
-  db.run(
-    query,
-    function (err) {
-      if (err)
-        console.error(err.message)
     }
   )
   db.close()

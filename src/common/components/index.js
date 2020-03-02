@@ -11,30 +11,31 @@ import { Info, Seat } from "common/components"
 */
 import Info from "./info"
 import Seat from "./seat"
-import Title from "./title"
+import Device from "./device"
 import SeatID from "./seatID"
 import Caution from "./caution"
-import Feedback from "./feedback"
 import Password from "./password"
 import StudentID from "./studentID"
 import Navigation from "./navigation"
 import SelectSeat from "./selectSeat"
 import EndUsePopup from "./endUsePopup"
-import { list, strings } from "./loadStrings"
+import { langs, strings } from "./loadStrings"
+import { Title, FeedbackTitle } from "./title"
 
 export {
   Info,
   Seat,
   Title,
+  Device,
   SeatID,
   Caution,
-  Feedback,
   Password,
   StudentID,
   Navigation,
   SelectSeat,
   EndUsePopup,
+  FeedbackTitle,
 
-  list,
+  langs,
   strings,
 }

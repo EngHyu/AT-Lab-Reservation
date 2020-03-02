@@ -7,12 +7,16 @@ import { deleteDB } from 'common/db'
 import { PopupStyle } from 'common/css'
 import { Password } from 'common/components'
 
+// 예약된 좌석을 누를 시 나타나는 사용 종료 팝업입니다.
 export default class EndUsePopup extends Component {
   static propTypes = {
     props: PropTypes.object.isRequired,
     trigger: PropTypes.object.isRequired,
   }
 
+  // 학번 수집을 위해 키를 입력할 때마다 state를 업데이트합니다.
+  // 엔터 키를 누르면 state에 저장된 값을 바탕으로 예약 정보 삭제를 시도합니다.
+  // 삭제 실패, 성공에 따른 피드백을 줍니다.
   handleKeyPress = (event, close) => {
     if (event.key !== "Enter") {
       this.setState({
@@ -33,6 +37,7 @@ export default class EndUsePopup extends Component {
     close()
   }
 
+  // 이용 종료 버튼을 눌렀을 때 예약 정보 삭제를 시도합니다.
   handleClick = (event, close) => {
     const {
       seatNum,
@@ -54,16 +59,20 @@ export default class EndUsePopup extends Component {
       trigger,
     } = this.props
 
+    const {
+      endUse,
+    } = this.props.props.strings
+
     return (
       <Popup trigger={trigger} modal>
         {close => (
           <div className={PopupStyle.modal}>
             <a className={PopupStyle.close} onClick={close}>&times;</a>
-            <div className={PopupStyle.header}>이용 종료</div>
+            <div className={PopupStyle.header}>{endUse.title}</div>
             <div className={PopupStyle.content}>
-              <span>언제든 재이용 할 수 있습니다.</span>
+              <span>{endUse.text}</span>
               <Password
-                placeholder="이용자 학번을 입력하세요."
+                placeholder={endUse.placeholder}
                 onKeyPress={(event) => this.handleKeyPress(event, close)} />
             </div>
             <div className={PopupStyle.actions}>
@@ -71,7 +80,7 @@ export default class EndUsePopup extends Component {
                 block={true}
                 color='danger'
                 onClick={(event) => this.handleClick(event, close)}>
-                좌석 이용을 종료합니다.
+                {endUse.submit}
               </Button>
             </div>
           </div>
