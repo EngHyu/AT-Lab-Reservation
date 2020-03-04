@@ -2,12 +2,32 @@
 @import '~bootstrap/dist/css/bootstrap.min.css';
 
 /* bootstrap에 대한 전반적인 수정 */
+body {
+  color: #cccccc;
+  background-color: #1e1e1e;
+}
+
+a {
+  color: #358ced;
+}
+
+.btn-primary, .btn-success, .btn-danger {
+  color: #eeeeee;
+}
+
+.btn-primary {
+  background-color: #358ced;
+}
+
 .input-group {
   margin-bottom: -1px;
 }
 
 .input-group > .input-group-prepend:nth-child(1) > .input-group-text {
   width: 105px;
+  color: #cccccc;
+  border-color: #cccccc;
+  background-color: #333333;
 }
 
 .btn {
@@ -20,6 +40,21 @@
   margin-bottom: 8px !important;
 }
 
-.form-control[readonly] {
-  background-color: initial;
+.form-control {
+  color: #cccccc;
+  background-color: #5a6268 !important;
+}
+
+.form-control:focus {
+  color: #cccccc !important;
+  border-color: #ffffff !important;
+  box-shadow: 0 0 0 0.2rem rgb(255, 255, 255, .5) !important;
+}
+
+.form-control::placeholder {
+  color: #cccccc;
+}
+
+.popup-content {
+  background-color: #1e1e1e !important;
 }

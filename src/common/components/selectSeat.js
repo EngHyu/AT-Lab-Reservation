@@ -55,7 +55,7 @@ export default class SelectSeat extends Component {
         <Col md={{ size: 10, offset: 1 }}>
           <Input type='hidden' name='roomNum' value={roomNum} />
           <Row className='pb-3' noGutters={true}>
-            <Button outline={true} block={true} className={SelectSeatStyle.seat} tag='label' disabled>Screen Side</Button>
+            <Button block={true} className={SelectSeatStyle.seat} tag='label' disabled>Screen Side</Button>
           </Row>
           <Row className={SelectSeatStyle.row}>
             {[...Array(8).keys()].map(num =>

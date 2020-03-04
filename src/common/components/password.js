@@ -55,7 +55,7 @@ export default class Password extends Component {
         autoFocus
         required />
         <InputGroupAddon addonType='append'>
-          <ButtonToggle outline={true} onClick={this.handleClick} active={isShow}>
+          <ButtonToggle onClick={this.handleClick} active={isShow}>
             {icon}
           </ButtonToggle>
         </InputGroupAddon>

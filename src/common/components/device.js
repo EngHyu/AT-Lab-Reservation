@@ -51,7 +51,7 @@ export default class Device extends Component {
           }
           {
             info !== "" &&
-            info.split("\\n").map(
+            info.split(", ").map(
               (ele, idx)=>(<li key={idx}>{ele}</li>)
             )
           }
