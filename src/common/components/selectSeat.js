@@ -1,10 +1,9 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import { FormGroup, Col, Row, Input } from 'reactstrap'
-import { IoIosArrowDropleftCircle, IoIosArrowDroprightCircle } from "react-icons/io"
 
 import { getSeat } from 'common/db'
-import { settings, Seat } from 'common/components'
+import { Seat } from 'common/components'
 import { SelectSeatStyle } from 'common/css'
 
 // db에서 좌석을 가져옵니다.
@@ -69,24 +68,11 @@ export default class SelectSeat extends Component {
       type,
     } = this.props.activeSeat
 
-    const { roomList } = settings
-    const len = roomList.length
-    const currentIndex = roomList.indexOf(roomNum)
-    const prev = currentIndex - 1 >= 0 ? currentIndex - 1 : len - 1
-    const next = currentIndex + 1 < len ? currentIndex + 1 : 0
-
     return (
       <FormGroup row className='mb-5'>
         <Col md={{ size: 8, offset: 2 }} className={SelectSeatStyle.container}>
           <Input type='hidden' name='roomNum' value={activeSeat.roomNum} />
           <Input type='hidden' name='type' value={type} />
-
-          {
-            len > 1 &&
-            <IoIosArrowDropleftCircle
-              className={SelectSeatStyle.prev}
-              onClick={()=>this.handleClick(roomList[prev])} />
-          }
           <Row className={SelectSeatStyle.row}>
             {
               seat.map((ele, idx) => (
@@ -100,12 +86,6 @@ export default class SelectSeat extends Component {
               ))
             }
           </Row>
-          {
-            len > 1 &&
-            <IoIosArrowDroprightCircle
-              className={SelectSeatStyle.next}
-              onClick={()=>this.handleClick(roomList[next])} />
-          }
         </Col>
       </FormGroup>
     )
