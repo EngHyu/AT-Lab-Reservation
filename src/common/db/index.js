@@ -243,33 +243,6 @@ export function initDB() {
       END;
     `)
     /*
-    예약 정보가 수정될 때 (현재는 사용되지 않습니다.)
-    새 좌석을 reserved로 바꿉니다.
-    이전 좌석을 reservable로 바꿉니다.
-    로그가 자동으로 추가됩니다.
-    */
-    db.run(`
-      CREATE TRIGGER updateReservation
-        AFTER UPDATE ON
-        reservation
-      BEGIN
-        UPDATE seat SET reservable=1 where roomNum=NEW.roomNum AND seatNum=NEW.seatNum AND type=NEW.type;
-        UPDATE seat SET reservable=0 where roomNum=OLD.roomNum AND seatNum=OLD.seatNum AND type=NEW.type;
-        INSERT INTO log(tableName, action, log)
-        VALUES(
-          'reservation',
-          'update',
-          'user=' || NEW.studentID || ', ' ||
-          'room number from=' || OLD.roomNum || ', ' ||
-          'to=' || NEW.roomNum || ', ' ||
-          'seat number from=' || OLD.seatNum || ', ' ||
-          'to=' || NEW.seatNum ||
-          'type number from=' || OLD.type || ', ' ||
-          'to=' || NEW.type
-        );
-      END;
-    `)
-    /*
     예약 정보가 삭제될 때
     좌석을 reservable로 바꿉니다.
     로그를 추가합니다.
@@ -309,117 +282,6 @@ export function insertDummyUser() {
         [20161000+i, `user_${i}`]
       )
     }
-  })
-  db.close()
-}
-
-export function insertSeat() {
-  const sqlite3 = sqlite.verbose()
-  const db = new sqlite3.Database(dbPath)
-
-  db.serialize(() => {
-    // for 513
-    for (let i=1; i<49; i++) {
-      db.run(`
-        INSERT INTO seat(
-          roomNum, seatNum
-        ) VALUES(513, ?);`,
-        i
-      )
-    }
-
-    // for 431
-    for (let i=1; i<29; i++) {
-      db.run(`
-        INSERT INTO seat(
-          roomNum, seatNum
-        ) VALUES(431, ?);`,
-        i
-      )
-    }
-    // for 431
-    for (let i=63; i<65; i++) {
-      db.run(`
-        INSERT INTO seat(
-          roomNum, seatNum
-        ) VALUES(431, ?);`,
-        i
-      )
-    }
-    // for 431 신티크
-    for (let i=1; i<3; i++) {
-      db.run(`
-        INSERT INTO seat(
-          roomNum, seatNum, type
-        ) VALUES(431, ?, 2);`,
-        i
-      )
-    }
-
-    // for 433 모니터석
-    for (let i=1; i<11; i++) {
-      db.run(`
-        INSERT INTO seat(
-          roomNum, seatNum, type
-        ) VALUES(433, ?, 1);`,
-        i
-      )
-    }
-    // for 433 공용 좌석
-    for (let i=1; i<9; i++) {
-      db.run(`
-        INSERT INTO seat(
-          roomNum, seatNum, type
-        ) VALUES(433, ?, 3);`,
-        i
-      )
-    }
-    // for 433
-    db.run(`
-      INSERT INTO seat(
-        roomNum, seatNum
-      ) VALUES(433, 65);`
-    )
-
-    // for 435
-    for (let i=29; i<63; i++) {
-      db.run(`
-        INSERT INTO seat(
-          roomNum, seatNum
-        ) VALUES(435, ?);`,
-        i
-      )
-    }
-    // for 435
-    for (let i=66; i<69; i++) {
-      db.run(`
-        INSERT INTO seat(
-          roomNum, seatNum
-        ) VALUES(435, ?);`,
-        i
-      )
-    }
-  })
-  db.close()
-}
-// 하루 주기로 예약 내역을 리셋할 때 사용합니다.
-// 프로그램이 꺼져 있을 경우 실행되지 않기 때문에 관련 내용은 윈도우 스케쥴러로 이동했습니다.
-// function resetReservation() {
-//   const sqlite3 = sqlite.verbose()
-//   const db = new sqlite3.Database(dbPath)
-//   db.get('DELETE FROM reservation;')
-//   db.get('UPDATE user SET available=1;')
-//   db.close()
-// }
-
-// 매 학기마다 사용자가 예약한 횟수를 리셋하는 용도입니다.
-export function resetAllTable() {
-  const sqlite3 = sqlite.verbose()
-  const db = new sqlite3.Database(dbPath)
-  db.serialize(() => {
-    db.get('DELETE FROM reservation;')
-    db.get('UPDATE user SET count=0;')
-    db.get('UPDATE user SET available=1;')
   })
   db.close()
 }
@@ -493,41 +355,6 @@ export function reserve({ studentID, roomNum, type, seatNum }, handler) {
       }
       
       handler(state)
-    }
-  )
-  db.close()
-}
-
-// 학생 이름으로 예약 내역을 검색하는 코드입니다.
-// 현재 사용하지 않습니다. (학번을 통해 좌석 예약을 해제하기 때문)
-export function getReservation(studentID, handler) {
-  const sqlite3 = sqlite.verbose()
-  const db = new sqlite3.Database(dbPath)
-  db.get(`
-    SELECT studentID, roomNum, type, seatNum
-    FROM   reservation
-    WHERE  studentID=(?);`,
-    studentID,
-    (err, row) => {
-      if (row === undefined) {
-        row = {
-          studentID: '',
-          roomNum: '',
-          type: '',
-          seatNum: '',
-          infoFeedback: {
-            type: 'invalid',
-            name: 'selectFailed',
-          }
-        }
-      }
-      else {
-        row.infoFeedback = {
-          type: 'valid',
-          name: 'selectSuccess',
-        }
-      }
-      handler(row)
     }
   )
   db.close()
