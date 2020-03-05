@@ -81,12 +81,9 @@ export default class SelectSeat extends Component {
           <Input type='hidden' name='roomNum' value={activeSeat.roomNum} />
           <Input type='hidden' name='type' value={type} />
 
-          {
-            len > 1 &&
-            <IoIosArrowDropleftCircle
-              className={SelectSeatStyle.prev}
-              onClick={()=>this.handleClick(roomList[prev])} />
-          }
+          <IoIosArrowDropleftCircle
+            className={SelectSeatStyle.prev}
+            onClick={()=>this.handleClick(roomList[prev])} />
           <Row className={SelectSeatStyle.row}>
             {
               seat.map((ele, idx) => (
@@ -100,12 +97,9 @@ export default class SelectSeat extends Component {
               ))
             }
           </Row>
-          {
-            len > 1 &&
-            <IoIosArrowDroprightCircle
-              className={SelectSeatStyle.next}
-              onClick={()=>this.handleClick(roomList[next])} />
-          }
+          <IoIosArrowDroprightCircle
+            className={SelectSeatStyle.next}
+            onClick={()=>this.handleClick(roomList[next])} />
         </Col>
       </FormGroup>
     )
