@@ -3,6 +3,15 @@
 import { readdirSync, readFileSync } from 'fs'
 import { join } from 'path'
 
+// 설정 파일을 가져옵니다.
+// 기본 실습실 번호와 실습실 리스트가 담겨 있습니다.
+export const settings = JSON.parse(
+  readFileSync(
+    join(__static, 'settings.json'),
+    'utf-8'
+  )
+)
+
 // 언어 파일 목록을 가져옵니다.
 // 언어 파일 json을 불러오거나, 네비게이션 바에 표시할 때 사용합니다.
 export const langs = readdirSync(

@@ -2,9 +2,10 @@
 import App from './App'
 import React from 'react'
 import ReactDOM from 'react-dom'
-import { initDB, insertDummyData } from 'common/db'
+import { initDB, insertDummyUser, insertSeat } from 'common/db'
 
-// initDB()
-// insertDummyData()
+// initDB() // for initial table
+// insertDummyUser() // for test
+// insertSeat() // for initial seat
 const rootElement = document.getElementById('app')
 ReactDOM.render(<App />, rootElement)

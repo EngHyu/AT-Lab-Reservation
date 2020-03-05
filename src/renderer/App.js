@@ -3,7 +3,7 @@ import { Form, FormGroup } from 'reactstrap'
 
 import './App.global.css'
 import { preprocess, reserve } from 'common/db'
-import { strings, Navigation, Title, SelectSeat, Info, Device, Caution } from 'common/components'
+import { settings, strings, Navigation, Title, Help, SelectSeat, Info, Device, Caution } from 'common/components'
 
 export default class App extends Component {
   static defaultState = {
@@ -12,18 +12,19 @@ export default class App extends Component {
       type: 'idle',  // feedback 상태 [idle, valid, invalid]
       name: 'idle',  // feedback 이름 => src/static/strings/ko.json 파일 안에 나와 있습니다.
     },
-    roomNum: 513,  // 513 or 431
-    activeSeat: {
-      seatNum: 0, // number
-      info: "", // string
-    }
   }
 
   // 초기 상태를 defaultState로 초기화
   // reset 될 때마다 defaultState로 초기화 합니다.
   state = {
     ...App.defaultState,
-    seat: [], // 좌석 정보가 { seatNum, type[예약가능=0, 예약됨=1, 고장=2], info } 형태 배열로 들어갑니다.
+    roomNum: settings.roomNum,  // 513 or 431
+    seat: [], // 좌석 정보가 { seatNum, type[예약가능=0, 예약됨=1, 고장=2], info } 형태 배열로 들어갑니다.,
+    activeSeat: {
+      roomNum: settings.roomNum, // 513, [431, 433, 435]
+      type: 0,
+      seatNum: 0,
+    }
   }
 
   // 주로 자식 컴포넌트가 이 컴포넌트의 state를 조작할 때 사용합니다.
@@ -46,7 +47,16 @@ export default class App extends Component {
 
   // form이 리셋될 때 state도 리셋합니다.
   handleReset = () => {
-    this.handler(App.defaultState)
+    const { activeSeat } = this.state
+    const resetSeat = {
+      ...activeSeat,
+      seatNum: 0,
+    }
+
+    this.handler({
+      ...this.state,
+      activeSeat: resetSeat,
+    })
   }
 
   render() {
@@ -58,11 +68,14 @@ export default class App extends Component {
       infoFeedback,
     } = this.state
 
+    const title = strings[lang].app.title + ` - ${roomNum}`
+    
     return (
       <div>
         <Navigation handler={this.handler} />
         <Form onSubmit={this.handleSubmit} onReset={this.handleReset} name="form" className="mt-5">
-          <Title strings={strings[lang].app} />
+          <Title text={title} />
+          <Help strings={strings[lang].help} />
           <SelectSeat
             seat={seat}
             strings={strings[lang]}
@@ -78,6 +91,7 @@ export default class App extends Component {
               handler={this.handler} />
 
             <Device
+              roomNum={roomNum}
               activeSeat={activeSeat}
               strings={strings[lang].device} />
           </FormGroup>

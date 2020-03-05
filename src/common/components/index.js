@@ -9,6 +9,7 @@ import Seat from "common/components/seat"
 After:
 import { Info, Seat } from "common/components"
 */
+import Help from "./help"
 import Info from "./info"
 import Seat from "./seat"
 import Device from "./device"
@@ -19,10 +20,11 @@ import StudentID from "./studentID"
 import Navigation from "./navigation"
 import SelectSeat from "./selectSeat"
 import EndUsePopup from "./endUsePopup"
-import { langs, strings } from "./loadStrings"
+import { langs, strings, settings } from "./loadStrings"
 import { Title, FeedbackTitle } from "./title"
 
 export {
+  Help,
   Info,
   Seat,
   Title,
@@ -38,4 +40,5 @@ export {
 
   langs,
   strings,
+  settings,
 }

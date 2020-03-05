@@ -26,13 +26,13 @@ export default class EndUsePopup extends Component {
     }
 
     const {
-      seatNum,
-      roomNum,
+      seat,
       handler,
     } = this.props.props
+
     const studentID = event.target.value
 
-    deleteDB(studentID, seatNum, roomNum, handler)
+    deleteDB(studentID, seat, handler)
     event.preventDefault()
     close()
   }
@@ -40,16 +40,15 @@ export default class EndUsePopup extends Component {
   // 이용 종료 버튼을 눌렀을 때 예약 정보 삭제를 시도합니다.
   handleClick = (event, close) => {
     const {
-      seatNum,
-      roomNum,
+      seat,
       handler,
     } = this.props.props
 
     const {
       studentID,
     } = this.state
-    
-    deleteDB(studentID, seatNum, roomNum, handler)
+
+    deleteDB(studentID, seat, handler)
     event.preventDefault()
     close()
   }

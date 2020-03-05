@@ -27,7 +27,13 @@ export function initDB() {
     /*
     roomNum: 실습실 번호
     seatNum: 좌석 번호
-    type: 좌석 상태 (0: 예약 가능, 1: 예약 중, 2: 고장)
+    type: 좌석 타입 (0: 일반석 & 1인석, 1: 모니터석, 2: 신티크, 3: 공용 공간 (예약 필요 없음))
+    reservable: 좌석 상태 (0: 예약 가능, 1: 예약 중, 2: 고장)
+
+    left: px 하드코딩
+    top: px 하드코딩
+    isVertical: 가로 세로 길쭉 방향
+    isDouble: 일인석 여부 확인
     info: 기기 사양
     */
     db.run(`
@@ -35,18 +41,24 @@ export function initDB() {
         roomNum INTEGER NOT NULL,
         seatNum INTEGER NOT NULL,
         type INTEGER DEFAULT 0,
+        reservable INTEGER DEFAULT 0,
+
+        left INTEGER DEFAULT 0,
+        top INTEGER DEFAULT 0,
+        isVertical INTEGER DEFAULT 0,
+        isDouble INTEGER DEFAULT 0,
         info TEXT DEFAULT '',
-        PRIMARY KEY(roomNum, seatNum)
+        
+        PRIMARY KEY(roomNum, seatNum, type)
       );
     `)
     /*
     studentID: 학번
     roomNum: 실습실 번호
     seatNum: 좌석 번호
-    startTime: 시작 시간
-    endTime: 종료 시간
+    type: 좌석 타입
     studentID와 seatNum, roomNum이 외래키임을 표시
-    roomNum & seatNum이 유일해야 합니다.
+    roomNum & seatNum & type이 유일해야 합니다.
     좌석 번호가 공백인지 확인합니다.
     */
     db.run(`
@@ -54,11 +66,10 @@ export function initDB() {
         studentID INTEGER PRIMARY KEY,
         roomNum INTEGER NOT NULL,
         seatNum INTEGER NOT NULL,
-        startTime TIME,
-        endTime TIME,
+        type INTEGER NOT NULL,
         CONSTRAINT user_fk FOREIGN KEY(studentID) REFERENCES user(studentID),
-        CONSTRAINT seat_fk FOREIGN KEY(roomNum, seatNum) REFERENCES seat(roomNum, seatNum),
-        UNIQUE(roomNum, seatNum),
+        CONSTRAINT seat_fk FOREIGN KEY(roomNum, seatNum, type) REFERENCES seat(roomNum, seatNum, type),
+        UNIQUE(roomNum, seatNum, type),
         CHECK(seatNum <> '')
       );
     `)
@@ -149,7 +160,13 @@ export function initDB() {
           'insert',
           'room number=' || NEW.roomNum || ', ' ||
           'seat number=' || NEW.seatNum || ', ' ||
-          'type=' || NEW.type
+          'type=' || NEW.type || ', ' ||
+          'reservable=' || NEW.reservable || ', ' ||
+          'left=' || NEW.left || ', ' ||
+          'top=' || NEW.top || ', ' ||
+          'isVertical=' || NEW.isVertical || ', ' ||
+          'isDouble=' || NEW.isDouble || ', ' ||
+          'info=' || NEW.info
         );
       END;
     `)
@@ -165,12 +182,15 @@ export function initDB() {
         VALUES(
           'seat',
           'update',
-          'room number from=' || OLD.roomNum || ', ' ||
-          'to=' || NEW.roomNum || ', ' ||
-          'seat number from=' || OLD.seatNum || ', ' ||
-          'to=' || NEW.seatNum || ', ' ||
-          'type from=' || OLD.type || ', ' ||
-          'to=' || NEW.type
+          'room number from=' || OLD.roomNum || ', ' || 'to=' || NEW.roomNum || ', ' ||
+          'seat number from=' || OLD.seatNum || ', ' || 'to=' || NEW.seatNum || ', ' ||
+          'type from=' || OLD.type || ', ' || 'to=' || NEW.type || ', ' ||
+          'reservable from=' || OLD.reservable || ', ' || 'to=' || NEW.reservable || ', ' ||
+          'left from=' || OLD.left || ', ' || 'to=' || NEW.left || ', ' ||
+          'top from=' || OLD.top || ', ' || 'to=' || NEW.top || ', ' ||
+          'isVertical from=' || OLD.isVertical || ', ' || 'to=' || NEW.isVertical || ', ' ||
+          'isDouble from=' || OLD.isDouble || ', ' || 'to=' || NEW.isDouble || ', ' ||
+          'info from=' || OLD.info || ', ' || 'to=' || NEW.info
         );
       END;
     `)
@@ -188,7 +208,13 @@ export function initDB() {
           'delete',
           'room number=' || OLD.roomNum || ', ' ||
           'seat number=' || OLD.seatNum || ', ' ||
-          'type=' || OLD.type
+          'type=' || OLD.type || ', ' ||
+          'reservable=' || OLD.reservable || ', ' ||
+          'left=' || OLD.left || ', ' ||
+          'top=' || OLD.top || ', ' ||
+          'isVertical=' || OLD.isVertical || ', ' ||
+          'isDouble=' || OLD.isDouble || ', ' ||
+          'info=' || OLD.info
         );
       END;
     `)
@@ -204,14 +230,15 @@ export function initDB() {
         reservation
       BEGIN
         UPDATE user SET count=count+available, available=0 where studentID=NEW.studentID;
-        UPDATE seat SET type=1 where roomNum=NEW.roomNum AND seatNum=NEW.seatNum;
+        UPDATE seat SET reservable=1 where roomNum=NEW.roomNum AND seatNum=NEW.seatNum AND type=NEW.type;
         INSERT INTO log(tableName, action, log)
         VALUES(
           'reservation',
           'insert',
           'user=' || NEW.studentID || ', ' ||
           'room number=' || NEW.roomNum || ', ' ||
-          'seat number=' || NEW.seatNum
+          'seat number=' || NEW.seatNum ||
+          'type=' || NEW.type
         );
       END;
     `)
@@ -226,8 +253,8 @@ export function initDB() {
         AFTER UPDATE ON
         reservation
       BEGIN
-        UPDATE seat SET type=1 where roomNum=NEW.roomNum AND seatNum=NEW.seatNum;
-        UPDATE seat SET type=0 where roomNum=OLD.roomNum AND seatNum=OLD.seatNum;
+        UPDATE seat SET reservable=1 where roomNum=NEW.roomNum AND seatNum=NEW.seatNum AND type=NEW.type;
+        UPDATE seat SET reservable=0 where roomNum=OLD.roomNum AND seatNum=OLD.seatNum AND type=NEW.type;
         INSERT INTO log(tableName, action, log)
         VALUES(
           'reservation',
@@ -236,7 +263,9 @@ export function initDB() {
           'room number from=' || OLD.roomNum || ', ' ||
           'to=' || NEW.roomNum || ', ' ||
           'seat number from=' || OLD.seatNum || ', ' ||
-          'to=' || NEW.seatNum
+          'to=' || NEW.seatNum ||
+          'type number from=' || OLD.type || ', ' ||
+          'to=' || NEW.type
         );
       END;
     `)
@@ -250,14 +279,15 @@ export function initDB() {
         AFTER DELETE ON
         reservation
       BEGIN
-        UPDATE seat SET type=0 where roomNum=OLD.roomNum AND seatNum=OLD.seatNum;
+        UPDATE seat SET reservable=0 where roomNum=OLD.roomNum AND seatNum=OLD.seatNum AND type=OLD.type;
         INSERT INTO log(tableName, action, log)
         VALUES(
           'reservation',
           'delete',
           'user=' || OLD.studentID || ', ' ||
           'room number=' || OLD.roomNum || ', ' ||
-          'seat number=' || OLD.seatNum
+          'seat number=' || OLD.seatNum ||
+          'type=' || OLD.type
         );
       END;
     `)
@@ -266,7 +296,7 @@ export function initDB() {
 }
 
 // 초기 더미 데이터 (테스트 용)
-export function insertDummyData() {
+export function insertDummyUser() {
   const sqlite3 = sqlite.verbose()
   const db = new sqlite3.Database(dbPath)
 
@@ -279,12 +309,94 @@ export function insertDummyData() {
         [20161000+i, `user_${i}`]
       )
     }
+  })
+  db.close()
+}
+
+export function insertSeat() {
+  const sqlite3 = sqlite.verbose()
+  const db = new sqlite3.Database(dbPath)
+
+  db.serialize(() => {
+    // for 513
     for (let i=1; i<49; i++) {
       db.run(`
         INSERT INTO seat(
           roomNum, seatNum
-        ) VALUES(?, ?);`,
-        [513, i]
+        ) VALUES(513, ?);`,
+        i
+      )
+    }
+
+    // for 431
+    for (let i=1; i<29; i++) {
+      db.run(`
+        INSERT INTO seat(
+          roomNum, seatNum
+        ) VALUES(431, ?);`,
+        i
+      )
+    }
+    // for 431
+    for (let i=63; i<65; i++) {
+      db.run(`
+        INSERT INTO seat(
+          roomNum, seatNum
+        ) VALUES(431, ?);`,
+        i
+      )
+    }
+    // for 431 신티크
+    for (let i=1; i<3; i++) {
+      db.run(`
+        INSERT INTO seat(
+          roomNum, seatNum, type
+        ) VALUES(431, ?, 2);`,
+        i
+      )
+    }
+
+    // for 433 모니터석
+    for (let i=1; i<11; i++) {
+      db.run(`
+        INSERT INTO seat(
+          roomNum, seatNum, type
+        ) VALUES(433, ?, 1);`,
+        i
+      )
+    }
+    // for 433 공용 좌석
+    for (let i=1; i<9; i++) {
+      db.run(`
+        INSERT INTO seat(
+          roomNum, seatNum, type
+        ) VALUES(433, ?, 3);`,
+        i
+      )
+    }
+    // for 433
+    db.run(`
+      INSERT INTO seat(
+        roomNum, seatNum
+      ) VALUES(433, 65);`
+    )
+
+    // for 435
+    for (let i=29; i<63; i++) {
+      db.run(`
+        INSERT INTO seat(
+          roomNum, seatNum
+        ) VALUES(435, ?);`,
+        i
+      )
+    }
+    // for 435
+    for (let i=66; i<69; i++) {
+      db.run(`
+        INSERT INTO seat(
+          roomNum, seatNum
+        ) VALUES(435, ?);`,
+        i
       )
     }
   })
@@ -317,11 +429,14 @@ export function getSeat(roomNum, handler) {
   const sqlite3 = sqlite.verbose()
   const db = new sqlite3.Database(dbPath)
   db.all(`
-    SELECT seatNum, type, info
+    SELECT *
     FROM   seat
     WHERE  roomNum=(?);`,
     [roomNum],
-    (err, rows) => handler({ seat: rows })
+    (err, rows) => handler({
+      seat: rows,
+      roomNum,
+    })
   )
 }
 
@@ -340,20 +455,15 @@ export function getPattern(handler) {
 
 // 해당 학생이 해당 좌석을 예약합니다.
 // SelectSeat에서 사용합니다.
-export function reserve({ studentID, roomNum, seatNum, start, end }, handler) {
+export function reserve({ studentID, roomNum, type, seatNum }, handler) {
   const sqlite3 = sqlite.verbose()
   const db = new sqlite3.Database(dbPath)
-
-  if (start === undefined) {
-    start = ""
-    end = ""
-  }
   
   db.run(`
     INSERT INTO reservation(
-      studentID, roomNum, seatNum, startTime, endTime
-    ) VALUES (?, ?, ?, ?, ?);`,
-    [studentID, roomNum, seatNum, start, end],
+      studentID, roomNum, type, seatNum
+    ) VALUES (?, ?, ?, ?);`,
+    [studentID, roomNum, type, seatNum],
     (err) => {
       const state = {
         infoFeedback: {
@@ -394,7 +504,7 @@ export function getReservation(studentID, handler) {
   const sqlite3 = sqlite.verbose()
   const db = new sqlite3.Database(dbPath)
   db.get(`
-    SELECT studentID, roomNum, seatNum, startTime, endTime
+    SELECT studentID, roomNum, type, seatNum
     FROM   reservation
     WHERE  studentID=(?);`,
     studentID,
@@ -403,9 +513,8 @@ export function getReservation(studentID, handler) {
         row = {
           studentID: '',
           roomNum: '',
+          type: '',
           seatNum: '',
-          startTime: '',
-          endTime: '',
           infoFeedback: {
             type: 'invalid',
             name: 'selectFailed',
@@ -429,8 +538,7 @@ export function preprocess(form) {
   const formData = Object.values(form)
     .reduce((acc, ele) => {
       if (!["", undefined, form.name].includes(ele.name))
-        acc[ele.name] = form[ele.name].value
-
+        acc[ele.name] = parseInt(form[ele.name].value)
       return acc
     }, {})
 
@@ -439,7 +547,7 @@ export function preprocess(form) {
 
 // db에서 예약 정보를 삭제합니다.
 // endUsePopup에서 사용합니다.
-export function deleteDB(studentID, seatNum, roomNum, handler) {
+export function deleteDB(studentID, { seatNum, roomNum }, handler) {
   const sqlite3 = sqlite.verbose()
   const db = new sqlite3.Database(dbPath)
   db.run(`

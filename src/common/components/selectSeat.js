@@ -1,9 +1,10 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
-import { FormGroup, Col, Row, Button, Input } from 'reactstrap'
+import { FormGroup, Col, Row, Input } from 'reactstrap'
+import { IoIosArrowDropleftCircle, IoIosArrowDroprightCircle } from "react-icons/io"
 
 import { getSeat } from 'common/db'
-import { Seat } from 'common/components'
+import { settings, Seat } from 'common/components'
 import { SelectSeatStyle } from 'common/css'
 
 // db에서 좌석을 가져옵니다.
@@ -14,22 +15,28 @@ export default class SelectSeat extends Component {
     strings: PropTypes.object.isRequired,
     roomNum: PropTypes.number.isRequired,
     seat: PropTypes.arrayOf(
-      PropTypes.exact({
+      PropTypes.shape({
+        reservable: PropTypes.number,
+        roomNum: PropTypes.number,
         seatNum: PropTypes.number,
         type: PropTypes.number,
-        info: PropTypes.string,
       })
     ).isRequired,
     activeSeat: PropTypes.shape({
+      roomNum: PropTypes.number,
+      type: PropTypes.number,
       seatNum: PropTypes.number,
-      info: PropTypes.string,
     }),
     handler: PropTypes.func.isRequired,
   }
 
   static defaultProps = {
     seat: [],
-    activeNum: '',
+    activeSeat: {
+      seatNum: 0,
+      type: 0,
+      info: '',
+    },
   }
 
   componentDidMount() {
@@ -38,6 +45,14 @@ export default class SelectSeat extends Component {
       handler,
     } = this.props
     
+    getSeat(roomNum, handler)
+  }
+
+  handleClick(roomNum) {
+    const {
+      handler,
+    } = this.props
+
     getSeat(roomNum, handler)
   }
 
@@ -50,32 +65,47 @@ export default class SelectSeat extends Component {
       handler,
     } = this.props
 
+    const {
+      type,
+    } = this.props.activeSeat
+
+    const { roomList } = settings
+    const len = roomList.length
+    const currentIndex = roomList.indexOf(roomNum)
+    const prev = currentIndex - 1 >= 0 ? currentIndex - 1 : len - 1
+    const next = currentIndex + 1 < len ? currentIndex + 1 : 0
+
     return (
       <FormGroup row className='mb-5'>
-        <Col md={{ size: 10, offset: 1 }}>
-          <Input type='hidden' name='roomNum' value={roomNum} />
-          <Row className='pb-3' noGutters={true}>
-            <Button block={true} className={SelectSeatStyle.seat} tag='label' disabled>Screen Side</Button>
-          </Row>
+        <Col md={{ size: 8, offset: 2 }} className={SelectSeatStyle.container}>
+          <Input type='hidden' name='roomNum' value={activeSeat.roomNum} />
+          <Input type='hidden' name='type' value={type} />
+
+          {
+            len > 1 &&
+            <IoIosArrowDropleftCircle
+              className={SelectSeatStyle.prev}
+              onClick={()=>this.handleClick(roomList[prev])} />
+          }
           <Row className={SelectSeatStyle.row}>
-            {[...Array(8).keys()].map(num =>
-              <Col className={`btn-group-toggle ${SelectSeatStyle.col}`} key={num}>
-                {[...Array(6).keys()].map(ele => {
-                    const id = num * 6 + ele
-                    return (
-                      <Seat
-                        key={id}
-                        seat={seat[id]}
-                        strings={strings}
-                        roomNum={roomNum}
-                        activeSeat={activeSeat}
-                        handler={handler} />
-                    )
-                  }
-                )}
-              </Col>
-            )}
+            {
+              seat.map((ele, idx) => (
+                <Seat
+                  key={idx}
+                  seat={ele}
+                  strings={strings}
+                  roomNum={roomNum}
+                  activeSeat={activeSeat}
+                  handler={handler} />
+              ))
+            }
           </Row>
+          {
+            len > 1 &&
+            <IoIosArrowDroprightCircle
+              className={SelectSeatStyle.next}
+              onClick={()=>this.handleClick(roomList[next])} />
+          }
         </Col>
       </FormGroup>
     )

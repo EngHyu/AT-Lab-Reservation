@@ -3,14 +3,13 @@ import PropTypes from 'prop-types'
 import { Button } from 'reactstrap'
 import React, { Component } from 'react'
 
-import { EndUsePopup } from 'common/components'
+import { EndUsePopup, } from 'common/components'
 import { SelectSeatStyle } from 'common/css'
 
 // 모든 좌석의 바탕이 되는 기본 좌석 컴포넌트
 class BasicSeat extends Component {
   static propTypes = {
-    color: PropTypes.string.isRequired,
-    seatNum: PropTypes.number.isRequired,
+    seat: PropTypes.object.isRequired,
     active: PropTypes.bool,
     disabled: PropTypes.bool,
     handler: PropTypes.func,
@@ -25,28 +24,65 @@ class BasicSeat extends Component {
     active: false,
   }
 
+  // 435가 너무 넓어서 같은 width를 적용할 수 없음...
+  // transform: scale(0.8, 1) 적용하니까 레이아웃 깨지고 팝업 이상해짐...
+  // 어쩔 수 없이 하나하나 수정 및 css 하드코딩 했습니다...
+  getClassName({ isVertical, isDouble, roomNum }) {
+    let style = "seat"
+    style += isVertical ? "Vertical" : "Horizontal"
+    style += isDouble ? "Double" : ""
+    style += roomNum === 435 ? roomNum : ""
+    return `${SelectSeatStyle[style]} ${SelectSeatStyle.seat}`
+  }
+
+  getColor({ type, reservable }) {
+    switch(reservable) {
+      case 1:
+        return "success"
+      case 2:
+        return "danger"
+    }
+
+    switch (type) {
+      case 0:
+        return "primary"
+      case 1:
+        return "info"
+      case 2:
+        return "warning"
+      case 3:
+        return "secondary"
+    }
+  }
+
   render() {
     const {
-      color,
-      seatNum,
+      seat,
       disabled,
     } = this.props
 
     const {
+      seatNum,
+    } = this.props.seat
+
+    const {
       active,
     } = this.state
+
+    const color = this.getColor(seat)
+    const className = this.getClassName(seat)
 
     return (
       <Button
       tag='label'
       name='seatNum'
       value={seatNum}
-      block={true}
       color={color}
       active={active}
       disabled={disabled}
-      className={SelectSeatStyle.seat}
+      className={className}
       onClick={this.handleClick}
+      style={seat}
       >
         {seatNum}
       </Button>
@@ -64,28 +100,25 @@ class ReservableSeat extends BasicSeat {
   static propTypes = {
     ...super.propTypes,
     activeSeat: PropTypes.shape({
+      roomNum: PropTypes.number,
+      type: PropTypes.number,
       seatNum: PropTypes.number,
-      info: PropTypes.string,
     }),
   }
 
   static defaultProps = {
     ...super.defaultProps,
-    color: "primary",
+    reservable: 0,
   }
 
   handleClick = () => {
     const {
-      info,
-      seatNum,
+      seat,
       handler,
     } = this.props
     
     handler({
-      activeSeat: {
-        seatNum: seatNum,
-        info: info,
-      }
+      activeSeat: seat,
     })
     document.form.studentID.focus()
   }
@@ -97,8 +130,10 @@ class ReservableSeat extends BasicSeat {
     if (this.props.activeSeat.seatNum === nextProps.activeSeat.seatNum)
       return false
 
+    const type = nextProps.type === nextProps.activeSeat.type
+    const seatNum = nextProps.activeSeat.seatNum === nextProps.seatNum
     this.setState({
-      active: nextProps.activeSeat.seatNum === nextProps.seatNum,
+      active: type && seatNum,
     })
   }
 }
@@ -112,13 +147,12 @@ class ReservableSeat extends BasicSeat {
 class ReservedSeat extends BasicSeat {
   static propTypes = {
     ...super.propTypes,
-    roomNum: PropTypes.number.isRequired,
     strings: PropTypes.object.isRequired,
   }
 
   static defaultProps = {
     ...super.defaultProps,
-    color: "success",
+    reservable: 1,
   }
 
   render() {
@@ -132,7 +166,7 @@ class ReservedSeat extends BasicSeat {
 class UnableSeat extends BasicSeat {
   static defaultProps = {
     ...super.defaultProps,
-    color: "danger",
+    reservable: 2,
     disabled: true,
   }
 }
@@ -140,11 +174,7 @@ class UnableSeat extends BasicSeat {
 // 좌석 type에 따라 다른 seat를 렌더합니다.
 export default class Seat extends Component {
   static propTypes = {
-    seat: PropTypes.exact({
-      seatNum: PropTypes.number,
-      type: PropTypes.number,
-      info: PropTypes.string,
-    }),
+    seat: PropTypes.object,
     roomNum: PropTypes.number,
     activeSeat: PropTypes.shape({
       seatNum: PropTypes.number,
@@ -163,27 +193,31 @@ export default class Seat extends Component {
 
   render() {
     const {
-      strings,
-      roomNum,
-      activeSeat,
+      seat,
       handler,
+      strings,
+      activeSeat,
     } = this.props
 
     const {
-      seatNum,
       type,
-      info,
+      reservable,
     } = this.props.seat
     
     switch (type) {
+      case 3:
+        return <UnableSeat seat={{ ...seat, reservable: 0, }} />
+    }
+
+    switch (reservable) {
       case 0:
-        return <ReservableSeat seatNum={seatNum} info={info} activeSeat={activeSeat} handler={handler} />
+        return <ReservableSeat seat={seat} activeSeat={activeSeat} handler={handler} />
 
       case 1:
-        return <ReservedSeat seatNum={seatNum} strings={strings} roomNum={roomNum} handler={handler} />
+        return <ReservedSeat seat={seat} strings={strings} handler={handler} />
       
       case 2:
-        return <UnableSeat seatNum={seatNum} />
+        return <UnableSeat seat={seat} />
 
       default:
         throw (`

@@ -8,7 +8,7 @@ import { FeedbackStyle } from 'common/css'
 class Headers extends Component {
   static propTypes = {
     size: PropTypes.number.isRequired,
-    text: PropTypes.string.isRequired,
+    text: PropTypes.string,
   }
 
   render() {
@@ -40,14 +40,11 @@ class Headers extends Component {
 // md는 bootstrap 속성이므로 건드릴 경우 레이아웃이 이상해질 수 있습니다.
 // 특정 해상도에서만 사용할 것이기 때문에 md만 지정하였습니다.
 // Title의 size는 h2로 고정입니다.
-// strings는 여러 언어 중 선택된, 현재 언어 오브젝트입니다.
 export class Title extends Component {
   static propTypes = {
     md: PropTypes.object.isRequired,
     size: PropTypes.number.isRequired,
-    strings: PropTypes.shape({
-      title: PropTypes.string,
-    }).isRequired,
+    text: PropTypes.string,
   }
 
   static defaultProps = {
@@ -63,13 +60,13 @@ export class Title extends Component {
     const {
       md,
       size,
-      strings,
+      text,
     } = this.props
 
     return (
       <Row noGutters={true}>
         <Col md={md} className={FeedbackStyle.space}>
-          <Headers size={size} text={strings.title} />
+          <Headers size={size} text={text} />
           <span className={className}>{span}</span>
         </Col>
       </Row>
@@ -86,6 +83,7 @@ export class FeedbackTitle extends Title {
 
     type: PropTypes.string.isRequired,
     name: PropTypes.string.isRequired,
+    strings: PropTypes.object.isRequired,
     handler: PropTypes.func.isRequired,
   }
 

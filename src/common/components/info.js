@@ -34,7 +34,7 @@ export default class Info extends Component {
 
     return (
       <Col md={{ size: 5, offset: 1 }}>
-        <FeedbackTitle strings={strings} type={type} name={name} handler={handler} />
+        <FeedbackTitle strings={strings} text={strings.title} type={type} name={name} handler={handler} />
         <Row noGutters={true}>
           <StudentID strings={strings.studentID} />
           <SeatID strings={strings.seatID} activeNum={activeNum} />
