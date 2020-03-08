@@ -1,6 +1,14 @@
 /* eslint-disable no-undef */
 import sqlite from 'sqlite3'
+import { scheduleJob } from 'node-schedule'
+
 const dbPath = [__static, 'db.db'].join('/')
+scheduleJob('0 0 * * *', () => {
+  const sqlite3 = sqlite.verbose()
+  const db = new sqlite3.Database(dbPath)
+  db.run(`DELETE FROM reservation;`)
+  db.close()
+})
 
 // 테스트 용도로 사용하거나, 초기 db 만들 때 사용합니다.
 export function initDB() {
